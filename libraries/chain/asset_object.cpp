@@ -122,6 +122,8 @@ void graphene::chain::asset_bitasset_data_object::update_median_feeds( time_poin
    refresh_cache();
 }
 
+  //  if(db.head_block_time() > HARDFORK_5050_1_TIME && ticket_ids.size() > winner_num) // for nft... rework
+
 void asset_bitasset_data_object::refresh_cache()
 {
    current_maintenance_collateralization = current_feed.maintenance_collateralization();
