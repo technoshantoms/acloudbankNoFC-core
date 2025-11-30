@@ -1,4 +1,27 @@
-
+/*
+ * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ *
+ * The MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/db_with.hpp>
@@ -128,32 +151,6 @@ void database::clear_expired_transactions()
    while( (!dedupe_index.empty()) && (head_block_time() > dedupe_index.begin()->trx.expiration) )
       transaction_idx.remove(*dedupe_index.begin());
 } FC_CAPTURE_AND_RETHROW() }
-
-void database::finalize_expired_offers(){
-    try {
-       detail::with_skip_flags( *this,
-          get_node_properties().skip_flags | skip_authority_check, [&](){
-             transaction_evaluation_state cancel_context(this);
-
-             //Cancel expired limit orders
-             auto& limit_index = get_index_type<offer_index>().indices().get<by_expiration_date>();
-             auto itr = limit_index.begin();
-             while( itr != limit_index.end() && itr->offer_expiration_date <= head_block_time() )
-             {
-                 const offer_object& offer = *itr;
-                 ++itr;
-
-                 finalize_offer_operation finalize;
-                 finalize.fee_paying_account = offer.issuer;
-                 finalize.offer_id = offer.id;
-                 finalize.fee = asset( 0, asset_id_type() );
-                 finalize.result = offer.bidder ? result_type::Expired : result_type::ExpiredNoBid;
-
-                 cancel_context.skip_fee_schedule_check = true;
-                 apply_operation(cancel_context, finalize);
-             }
-         });
-} FC_CAPTURE_AND_RETHROW()}
 
 void database::clear_expired_proposals()
 {

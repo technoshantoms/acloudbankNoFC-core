@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
+ * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
+ *
+ * The MIT License
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 #include <graphene/chain/database.hpp>
 
@@ -5,10 +29,6 @@
 #include <graphene/chain/chain_property_object.hpp>
 #include <graphene/chain/global_property_object.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
-
-//FOR NFT
-#include <graphene/chain/custom_account_authority_object.hpp>
-#include <graphene/chain/offer_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -125,37 +145,6 @@ const account_statistics_object& database::get_account_stats_by_owner( account_i
 const witness_schedule_object& database::get_witness_schedule_object()const
 {
    return *_p_witness_schedule_obj;
-}
-
-vector<authority> database::get_account_custom_authorities(account_id_type account, const operation& op)const
-{
-   const auto& pindex = get_index_type<custom_permission_index>().indices().get<by_account_and_permission>();
-   const auto& cindex = get_index_type<custom_account_authority_index>().indices().get<by_permission_and_op>();
-   auto prange = pindex.equal_range(boost::make_tuple(account));
-   time_point_sec now = head_block_time();
-   vector<authority> custom_auths;
-   for(const custom_permission_object& pobj : boost::make_iterator_range(prange.first, prange.second))
-   {
-      auto crange = cindex.equal_range(boost::make_tuple(pobj.id, op.which()));
-      for(const custom_account_authority_object& cobj : boost::make_iterator_range(crange.first, crange.second))
-      {
-         if(now >= cobj.valid_from && now < cobj.valid_to)
-         {
-            custom_auths.push_back(pobj.auth);
-         }
-      }
-   }
-   return custom_auths;
-}
-
-bool database::item_locked(const nft_id_type &item) const
-{
-   const auto &offer_idx = get_index_type<offer_index>();
-   const auto &oidx = dynamic_cast<const base_primary_index &>(offer_idx);
-   const auto &market_items = oidx.get_secondary_index<graphene::chain::offer_item_index>();
-
-   auto items_itr = market_items._locked_items.find(item);
-   return (items_itr != market_items._locked_items.end());
 }
 
 } }

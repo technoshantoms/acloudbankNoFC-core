@@ -640,12 +640,6 @@ void update_top_n_authorities( database& db )
                 break;
          }
 
-// FOR NFT
-/* db.modify(db.get_global_properties(), [period_start, vesting_period](global_property_object& p) {
-            p.parameters.extensions.value.gpos_period_start =  period_start + vesting_period;
-*/
-
-
          db.modify( acct, [&]( account_object& a )
          {
             vc.finish( is_owner ? a.owner : a.active );
