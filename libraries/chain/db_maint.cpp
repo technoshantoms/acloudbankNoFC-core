@@ -25,6 +25,7 @@
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/worker_object.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
+#include <graphene/chain/custom_account_authority_object.hpp>
 
 namespace graphene { namespace chain {
 
@@ -640,12 +641,6 @@ void update_top_n_authorities( database& db )
                 break;
          }
 
-// FOR NFT
-/* db.modify(db.get_global_properties(), [period_start, vesting_period](global_property_object& p) {
-            p.parameters.extensions.value.gpos_period_start =  period_start + vesting_period;
-*/
-
-
          db.modify( acct, [&]( account_object& a )
          {
             vc.finish( is_owner ? a.owner : a.active );
@@ -856,7 +851,8 @@ void database::process_bitassets()
 
    const auto update_bitasset = [this,head_time,head_epoch_seconds]( asset_bitasset_data_object &o )
    {
-      o.force_settled_volume = 0; // Reset all BitAsset force settlement volumes to zero
+      o.force_settled_volume = 0;
+       // Reset all BitAsset force settlement volumes to zero
 
       // clear expired feeds
       const auto &asset = get( o.asset_id );
@@ -883,6 +879,7 @@ void database::process_bitassets()
    }
 }
 
+
 void update_median_feeds(database& db)
 {
    time_point_sec head_time = db.head_block_time();
@@ -899,6 +896,42 @@ void update_median_feeds(database& db)
    }
 }
 
+void rolling_period_start(database& db)
+{
+   if(db.head_block_time() >= HARDFORK_GPOS_TIME)
+   {
+      auto gpo = db.get_global_properties();
+      auto period_start = db.get_global_properties().parameters.gpos_period_start();
+      auto vesting_period = db.get_global_properties().parameters.gpos_period();
+
+      auto now = db.head_block_time();
+      if(now.sec_since_epoch() >= (period_start + vesting_period))
+      {
+         // roll
+         db.modify(db.get_global_properties(), [period_start, vesting_period](global_property_object& p) {
+            p.parameters.extensions.value.gpos_period_start =  period_start + vesting_period;
+         });
+      }
+   }
+}
+
+void clear_expired_custom_account_authorities(database& db)
+{
+   const auto& cindex = db.get_index_type<custom_account_authority_index>().indices().get<by_expiration>();
+   while(!cindex.empty() && cindex.begin()->valid_to < db.head_block_time())
+   {
+      db.remove(*cindex.begin());
+   }
+}
+
+void clear_expired_account_roles(database& db)
+{
+   const auto& arindex = db.get_index_type<account_role_index>().indices().get<by_expiration>();
+   while(!arindex.empty() && arindex.begin()->valid_to < db.head_block_time())
+   {
+      db.remove(*arindex.begin());
+   }
+}
 /**
  * @brief Remove any custom active authorities whose expiration dates are in the past
  * @param db A mutable database reference
@@ -1280,5 +1313,12 @@ uint64_t database::get_maintenance_seed() const
 {
    return _maintenance_prng.get_seed();
 }
+
+// Ideally we have to do this after every block but that leads to longer block applicaiton/replay times.
+   // So keep it here as it is not critical. valid_to check ensures
+   // these custom account auths and account roles are not usable.
+   clear_expired_custom_account_authorities(*this);
+   clear_expired_account_roles(*this);
+
 
 } }
