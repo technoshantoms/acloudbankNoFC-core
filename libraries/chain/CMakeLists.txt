@@ -56,18 +56,12 @@ add_library( graphene_chain
              custom_authority_evaluator.cpp
              buyback.cpp
 
-
-             custom_permission.cpp
-             custom_account_authority.cpp
-             offer.cpp
-
              custom_permission_evaluator.cpp
              custom_account_authority_evaluator.cpp
 
              offer_object.cpp
              offer_evaluator.cpp
              nft_evaluator.cpp
-             nft.cpp
 
 
              tnt/object.cpp

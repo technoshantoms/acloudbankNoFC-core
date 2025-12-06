@@ -28,9 +28,13 @@ list(APPEND SOURCES account.cpp
                     operations.cpp
                     pts_address.cpp
                     small_ops.cpp
+                    custom_permission.cpp
+                    custom_account_authority.cpp
+                    offer.cpp
                     transaction.cpp
                     types.cpp
                     withdraw_permission.cpp
+                    offer.cpp
                     worker.cpp
                     personal_data.cpp
                     content_card.cpp
@@ -40,7 +44,8 @@ list(APPEND SOURCES account.cpp
                     tnt/types.cpp
                     tnt/lookups.cpp
                     tnt/validation.cpp
-                    tnt/operations.cpp)
+                    tnt/operations.cpp 
+                    )
 
 
 list(APPEND CUSTOM_AUTHS_FILES

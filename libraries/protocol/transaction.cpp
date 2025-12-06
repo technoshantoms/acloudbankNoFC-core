@@ -247,7 +247,7 @@ struct sign_state
 void verify_authority( const vector<operation>& ops, const flat_set<public_key_type>& sigs,
                        const std::function<const authority*(account_id_type)>& get_active,
                        const std::function<const authority*(account_id_type)>& get_owner,
-                        const std::function<vector<authority>(account_id_type, const operation&)>& get_custom,
+                       const std::function<vector<authority>(account_id_type, const operation&)>& get_custom,
                        const custom_authority_lookup& get_custom,
                        bool allow_non_immediate_owner,
                        bool ignore_custom_operation_required_auths,
