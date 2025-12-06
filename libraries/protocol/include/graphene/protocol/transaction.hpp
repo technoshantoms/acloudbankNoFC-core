@@ -136,6 +136,7 @@ namespace graphene { namespace protocol {
               const std::function<const authority*(account_id_type)>& get_owner,
               bool allow_non_immediate_owner,
               bool ignore_custom_operation_required_authorities,
+              const std::function<vector<authority>(account_id_type, const operation&)>& get_custom,
               uint32_t max_recursion = GRAPHENE_MAX_SIG_CHECK_DEPTH )const;
 
       /**
@@ -159,6 +160,7 @@ namespace graphene { namespace protocol {
               const std::function<const authority*(account_id_type)>& get_owner,
               const custom_authority_lookup& get_custom,
               bool allow_non_immediate_owner,
+              const std::function<vector<authority>(account_id_type, const operation&)>& get_custom,
               bool ignore_custom_operation_required_auths,
               uint32_t max_recursion = GRAPHENE_MAX_SIG_CHECK_DEPTH )const;
 

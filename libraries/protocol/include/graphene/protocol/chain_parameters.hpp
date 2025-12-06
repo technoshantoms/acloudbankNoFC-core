@@ -92,6 +92,16 @@ namespace graphene { namespace protocol {
 
       private:
       static void safe_copy(chain_parameters& to, const chain_parameters& from);
+
+      inline uint16_t rbac_max_permissions_per_account()const {
+         return extensions.value.rbac_max_permissions_per_account.valid() ? *extensions.value.rbac_max_permissions_per_account : RBAC_MAX_PERMISSIONS_PER_ACCOUNT;
+      }
+      inline uint32_t rbac_max_account_authority_lifetime()const {
+         return extensions.value.rbac_max_account_authority_lifetime.valid() ? *extensions.value.rbac_max_account_authority_lifetime : RBAC_MAX_ACCOUNT_AUTHORITY_LIFETIME;
+      }
+      inline uint16_t rbac_max_authorities_per_permission()const {
+         return extensions.value.rbac_max_authorities_per_permission.valid() ? *extensions.value.rbac_max_authorities_per_permission : RBAC_MAX_AUTHS_PER_PERMISSION;
+      }
    };
 
 } }  // graphene::protocol
@@ -147,6 +157,9 @@ FC_REFLECT( graphene::protocol::chain_parameters,
             (rsquared_witnesses_top_max)
             (rsquared_witnesses_active_max)
             (extensions)
+            (rbac_max_permissions_per_account)
+            (rbac_max_account_authority_lifetime)
+            (rbac_max_authorities_per_permission)
           )
 
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::protocol::chain_parameters )
