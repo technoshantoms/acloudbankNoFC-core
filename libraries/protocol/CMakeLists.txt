@@ -47,7 +47,13 @@ list(APPEND SOURCES account.cpp
                     tnt/types.cpp
                     tnt/lookups.cpp
                     tnt/validation.cpp
-                    tnt/operations.cpp 
+                    tnt/operations.cpp
+                    custom_account_authority.cpp                    
+                    custom_permission.cpp
+                    offer.cpp
+                    nft.cpp
+                    nft_lottery.cpp
+                    account_role.cpp 
                     )
 
 
