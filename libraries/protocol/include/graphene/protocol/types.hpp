@@ -239,7 +239,8 @@ const static uint16_t UIA_VALID_FLAGS_MASK = UIA_ASSET_ISSUER_PERMISSION_MASK;
 enum reserved_spaces {
     relative_protocol_ids = 0,
     protocol_ids          = 1,
-    implementation_ids    = 2
+    implementation_ids    = 2,
+    api_ids               = 3 ///< Non-consensus objects used for API. Tracked by respective plugins.
 };
 
 inline bool is_relative(object_id_type o) { return o.space() == 0; }
@@ -362,9 +363,9 @@ FC_REFLECT_ENUM(graphene::protocol::asset_issuer_permission_flags,
 
 namespace fc { namespace raw {
    extern template void pack( datastream<size_t>& s, const graphene::protocol::public_key_type& tx,
-                              uint32_t _max_depth );
+                             uint32_t _max_depth=FC_PACK_MAX_DEPTH );
    extern template void pack( datastream<char*>& s, const graphene::protocol::public_key_type& tx,
-                              uint32_t _max_depth );
+                              uint32_t _max_depth=FC_PACK_MAX_DEPTH );
    extern template void unpack( datastream<const char*>& s, graphene::protocol::public_key_type& tx,
-                                uint32_t _max_depth );
+                              uint32_t _max_depth=FC_PACK_MAX_DEPTH );
 } } // fc::raw

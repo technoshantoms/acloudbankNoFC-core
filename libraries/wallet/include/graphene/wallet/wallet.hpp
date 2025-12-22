@@ -105,6 +105,8 @@ class wallet_api
        */
       uint64_t get_asset_count()const;
 
+       asset get_lottery_balance( asset_id_type lottery_id ) const;
+
       /** Returns the most recent operations on the named account.
        *
        * This returns a list of operation history objects, which describe activity on the account.

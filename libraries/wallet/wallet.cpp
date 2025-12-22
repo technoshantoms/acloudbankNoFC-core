@@ -202,6 +202,25 @@ uint64_t wallet_api::get_asset_count()const
    return my->_remote_db->get_asset_count();
 }
 
+vector<asset_object> wallet_api::get_lotteries( asset_id_type stop,
+                                                unsigned limit,
+                                                asset_id_type start )const
+{
+   return my->_remote_db->get_lotteries( stop, limit, start );
+}
+
+vector<asset_object> wallet_api::get_account_lotteries(  account_id_type issuer,
+                                                         asset_id_type stop,
+                                                         unsigned limit,
+                                                         asset_id_type start )const
+{
+   return my->_remote_db->get_account_lotteries( issuer, stop, limit, start );
+}
+
+asset wallet_api::get_lottery_balance( asset_id_type lottery_id )const
+{
+   return my->_remote_db->get_lottery_balance( lottery_id );
+}
 signed_transaction wallet_api::htlc_create( string source, string destination, string amount, string asset_symbol,
          string hash_algorithm, const std::string& preimage_hash, uint32_t preimage_size,
          const uint32_t claim_period_seconds, const std::string& memo, bool broadcast)

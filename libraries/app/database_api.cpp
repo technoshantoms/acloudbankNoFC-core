@@ -5,6 +5,8 @@
 
 #include "database_api_impl.hxx"
 
+#include <graphene/chain/account_object.hpp>
+
 #include <graphene/app/util.hpp>
 #include <graphene/chain/get_config.hpp>
 #include <graphene/chain/hardfork.hpp>
@@ -2833,6 +2835,19 @@ fc::optional<custom_permission_object> database_api_impl::get_custom_permission_
    vector<offer_history_object> get_offer_history_by_issuer(const offer_history_id_type lower_id, const account_id_type issuer_account_id, uint32_t limit) const;
    vector<offer_history_object> get_offer_history_by_item(const offer_history_id_type lower_id, const nft_id_type item, uint32_t limit) const;
    vector<offer_history_object> get_offer_history_by_bidder(const offer_history_id_type lower_id, const account_id_type bidder_account_id, uint32_t limit) const;
+
+   uint32_t api_limit_get_lower_bound_symbol = 100;
+   uint32_t api_limit_get_limit_orders = 300;
+   uint32_t api_limit_get_limit_orders_by_account = 101;
+   uint32_t api_limit_get_order_book = 50;
+   uint32_t api_limit_all_offers_count = 100;
+   uint32_t api_limit_lookup_accounts = 1000;
+   uint32_t api_limit_lookup_witness_accounts = 1000;
+   uint32_t api_limit_lookup_committee_member_accounts = 1000;
+   uint32_t api_limit_lookup_son_accounts = 1000;
+   uint32_t api_limit_lookup_worker_accounts = 1000;
+   uint32_t api_limit_get_trade_history = 100;
+   uint32_t api_limit_get_trade_history_by_sequence = 100;
 
 
 uint64_t database_api::nft_get_balance(const account_id_type owner) const

@@ -46,6 +46,15 @@ asset database::get_balance(const account_object& owner, const asset_object& ass
    return get_balance(owner.get_id(), asset_obj.get_id());
 }
 
+asset database::get_balance(asset_id_type lottery_id)const
+{
+   auto& index = get_index_type<lottery_balance_index>().indices().get<by_owner>();
+   auto itr = index.find( lottery_id );
+   if( itr == index.end() )
+      return asset(0, asset_id_type( ));
+   return itr->get_balance();
+}
+
 string database::to_pretty_string( const asset& a )const
 {
    return a.asset_id(*this).amount_to_pretty_string(a.amount);

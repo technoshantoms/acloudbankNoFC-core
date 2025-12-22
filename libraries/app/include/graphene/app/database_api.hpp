@@ -24,8 +24,9 @@
 #include <graphene/chain/witness_schedule_object.hpp>
 
 //NFT
-#include <graphene/chain/custom_permission_object.hpp>
+#include <graphene/chain/account_role_object.hpp>
 #include <graphene/chain/custom_account_authority_object.hpp>
+#include <graphene/chain/custom_permission_object.hpp>
 #include <graphene/chain/nft_object.hpp>
 #include <graphene/chain/offer_object.hpp>
 
@@ -48,6 +49,14 @@ using namespace graphene::market_history;
 using std::string;
 using std::vector;
 using std::map;
+
+using namespace std;
+
+struct order {
+   double price;
+   double quote;
+   double base;
+};
 
 class database_api_impl;
 
@@ -971,6 +980,64 @@ class database_api
        * @return The htlc object list
       */
       vector<htlc_object> list_htlcs(const htlc_id_type start, uint32_t limit) const;
+
+       //////////////
+   // Accounts //
+   //////////////
+
+   /**
+    * @brief Get account object from a name or ID
+    * @param name_or_id name or ID of the account
+    * @return Account ID
+    *
+    */
+   account_id_type get_account_id_from_string(const std::string &name_or_id) const;
+
+   /**
+    * @brief Get a list of accounts by ID or Name
+    * @param account_ids IDs of the accounts to retrieve
+    * @return The accounts corresponding to the provided IDs
+    *
+    * This function has semantics identical to @ref get_objects
+    */
+   vector<optional<account_object>> get_accounts(const vector<std::string> &account_names_or_ids) const;
+
+   /**
+    * @brief Fetch all objects relevant to the specified accounts and subscribe to updates
+    * @param callback Function to call with updates
+    * @param names_or_ids Each item must be the name or ID of an account to retrieve
+    * @return Map of string from @ref names_or_ids to the corresponding account
+    *
+    * This function fetches all relevant objects for the given accounts, and subscribes to updates to the given
+    * accounts. If any of the strings in @ref names_or_ids cannot be tied to an account, that input will be
+    * ignored. All other accounts will be retrieved and subscribed.
+    *
+    */
+   std::map<string, full_account> get_full_accounts(const vector<string> &names_or_ids, bool subscribe);
+
+   optional<account_object> get_account_by_name(string name) const;
+
+   /**
+    *  @return all accounts that referr to the key or account id in their owner or active authorities.
+    */
+   vector<account_id_type> get_account_references(const std::string account_name_or_id) const;
+
+   /**
+    * @brief Get a list of accounts by name
+    * @param account_names Names of the accounts to retrieve
+    * @return The accounts holding the provided names
+    *
+    * This function has semantics identical to @ref get_objects
+    */
+   vector<optional<account_object>> lookup_account_names(const vector<string> &account_names) const;
+
+   /**
+    * @brief Get names and IDs for registered accounts
+    * @param lower_bound_name Lower bound of the first name to return
+    * @param limit Maximum number of results to return -- must not exceed 1000
+    * @return Map of account names to corresponding IDs
+    */
+   map<string, account_id_type> lookup_accounts(const string &lower_bound_name, uint32_t limit) const;
 
        //////////
       // RBAC //
