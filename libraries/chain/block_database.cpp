@@ -81,6 +81,10 @@ void block_database::flush()
 
 void block_database::store( const block_id_type& _id, const signed_block& b )
 {
+  if (true == replay_mode){
+       return;
+   }
+   
    block_id_type id = _id;
    if( id == block_id_type() )
    {

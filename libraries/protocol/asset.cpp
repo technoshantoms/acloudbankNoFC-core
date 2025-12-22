@@ -30,8 +30,8 @@
 #include <fc/uint128.hpp>
 
 namespace graphene { namespace protocol {
-      using fc::uint128_t;
-      using fc::int128_t;
+      typedef boost::multiprecision::uint128_t uint128_t;
+      typedef boost::multiprecision::int128_t  int128_t;
 
       bool operator == ( const price& a, const price& b )
       {
@@ -55,6 +55,26 @@ namespace graphene { namespace protocol {
          const auto bmult = uint128_t( a.quote.amount.value ) * b.base.amount.value;
 
          return amult < bmult;
+      }
+
+       bool operator <= ( const price& a, const price& b )
+      {
+         return (a == b) || (a < b);
+      }
+
+      bool operator != ( const price& a, const price& b )
+      {
+         return !(a == b);
+      }
+
+      bool operator > ( const price& a, const price& b )
+      {
+         return !(a <= b);
+      }
+
+      bool operator >= ( const price& a, const price& b )
+      {
+         return !(a < b);
       }
 
       asset operator * ( const asset& a, const price& b )
@@ -219,7 +239,7 @@ namespace graphene { namespace protocol {
          while( cp.numerator() > GRAPHENE_MAX_SHARE_SUPPLY || cp.denominator() > GRAPHENE_MAX_SHARE_SUPPLY )
             cp = boost::rational<int128_t>( (cp.numerator() >> 1)+1, (cp.denominator() >> 1)+1 );
 
-         return  (  asset( static_cast<int64_t>(cp.denominator()), collateral.asset_id )
+         return  (asset( static_cast<int64_t>(cp.denominator()), collateral.asset_id )
                   / asset( static_cast<int64_t>(cp.numerator()), debt.asset_id ) );
       } FC_CAPTURE_AND_RETHROW( (debt)(collateral)(collateral_ratio) ) }
 
@@ -244,6 +264,7 @@ namespace graphene { namespace protocol {
          FC_ASSERT( maximum_short_squeeze_ratio <= GRAPHENE_MAX_COLLATERAL_RATIO );
          FC_ASSERT( maintenance_collateral_ratio >= GRAPHENE_MIN_COLLATERAL_RATIO );
          FC_ASSERT( maintenance_collateral_ratio <= GRAPHENE_MAX_COLLATERAL_RATIO );
+         max_short_squeeze_price(); // make sure that it doesn't overflow
          // Note: there was code here calling `max_short_squeeze_price();` before core-1270 hard fork,
          //       in order to make sure that it doesn't overflow,
          //       but the code doesn't actually check overflow, and it won't overflow, so the code is removed.

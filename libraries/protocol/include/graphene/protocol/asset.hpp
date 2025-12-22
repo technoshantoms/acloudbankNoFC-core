@@ -258,6 +258,8 @@ namespace graphene { namespace protocol {
       /// Whether the parameters that affect margin calls in this price feed object are the same as the parameters
       /// in the passed-in object
       bool margin_call_params_equal( const price_feed& b ) const
+
+      friend bool operator == ( const price_feed& a, const price_feed& b )
       {
          if( this == &b )
             return true;

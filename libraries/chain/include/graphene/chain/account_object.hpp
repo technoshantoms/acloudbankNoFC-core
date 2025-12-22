@@ -370,15 +370,25 @@ namespace graphene { namespace chain {
 
    struct by_asset_balance;
    struct by_maintenance_flag;
+   struct by_account_asset;
+   struct by_owner;
    /**
     * @ingroup object_index
     */
    typedef multi_index_container<
-      account_balance_object,
       indexed_by<
          ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
+         ordered_unique< tag<by_owner>,
+                         member< account_statistics_object, account_id_type, &account_statistics_object::owner > >,
          ordered_non_unique< tag<by_maintenance_flag>,
                              member< account_balance_object, bool, &account_balance_object::maintenance_flag > >,
+         ordered_unique< tag<by_account_asset>,
+            composite_key<
+               account_balance_object,
+               member<account_balance_object, account_id_type, &account_balance_object::owner>,
+               member<account_balance_object, asset_id_type, &account_balance_object::asset_type>
+            >
+         >,
          ordered_unique< tag<by_asset_balance>,
             composite_key<
                account_balance_object,

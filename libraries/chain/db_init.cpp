@@ -7,6 +7,7 @@
 
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/asset_object.hpp>
+#include <graphene/chain/account_role_object.hpp>
 #include <graphene/chain/balance_object.hpp>
 #include <graphene/chain/ico_balance_object.hpp>
 #include <graphene/chain/block_summary_object.hpp>
@@ -189,6 +190,7 @@ void database::initialize_evaluators()
    register_evaluator<nft_lottery_end_evaluator>();
    register_consensus_evaluator<lottery_reward_evaluator>();
    register_consensus_evaluator<lottery_end_evaluator>();
+   register_consensus_evaluator<sweeps_vesting_claim_evaluator>();
 }
 
 void database::initialize_indexes()

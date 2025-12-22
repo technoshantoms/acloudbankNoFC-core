@@ -335,7 +335,11 @@ namespace graphene { namespace chain {
           * @param account ID of account whose balance should be adjusted
           * @param delta Asset ID and amount to adjust balance by
           */
-         void adjust_balance(account_id_type account, asset delta);
+       
+       /**
+          * @brief Adjust a particular account's sweeps vesting balance in a given asset by a delta
+          */
+         void adjust_sweeps_vesting_balance(account_id_type account, int64_t delta);
 
          void deposit_market_fee_vesting_balance(const account_id_type &account_id, const asset &delta);
         /**

@@ -90,6 +90,7 @@ void graphene::chain::asset_bitasset_data_object::update_median_feeds( time_poin
    BOOST_PP_SEQ_FOR_EACH( CHECK_AND_CALCULATE_MEDIAN_VALUE, ~,
                           (maintenance_collateral_ratio)(maximum_short_squeeze_ratio)(initial_collateral_ratio) )
 #undef CHECK_AND_CALCULATE_MEDIAN_VALUE
+   BOOST_PP_SEQ_FOR_EACH( CALCULATE_MEDIAN_VALUE, ~, GRAPHENE_PRICE_FEED_FIELDS )
 #undef CALCULATE_MEDIAN_VALUE
    // *** End Median Calculations ***
 
@@ -206,6 +207,27 @@ map< account_id_type, vector< uint16_t > > asset_object::distribute_winners_part
       structurized_participants[ holders[ winner_num ] ].push_back( tickets[c] );
    }
    return structurized_participants;
+}
+void asset_object::distribute_sweeps_holders_part( database& db )
+{
+   transaction_evaluation_state eval( &db );
+   
+   auto& asset_bal_idx = db.get_index_type< account_balance_index >().indices().get< by_asset_balance >();
+   
+   auto sweeps_params = db.get_global_properties().parameters;
+   uint64_t distribution_asset_supply = sweeps_params.sweeps_distribution_asset()( db ).dynamic_data( db ).current_supply.value;
+   const auto range = asset_bal_idx.equal_range( boost::make_tuple( sweeps_params.sweeps_distribution_asset() ) );
+   
+   uint64_t holders_sum = 0;
+   for( const account_balance_object& holder_balance : boost::make_iterator_range( range.first, range.second ) )
+   {
+      int64_t holder_part = db.get_balance(id).amount.value / (double)distribution_asset_supply * holder_balance.balance.value * SWEEPS_VESTING_BALANCE_MULTIPLIER;
+      db.adjust_sweeps_vesting_balance( holder_balance.owner, holder_part );
+      holders_sum += holder_part;
+   }
+   uint64_t balance_rest = db.get_balance( get_id() ).amount.value * SWEEPS_VESTING_BALANCE_MULTIPLIER - holders_sum;
+   db.adjust_sweeps_vesting_balance( sweeps_params.sweeps_vesting_accumulator_account(), balance_rest );
+   db.adjust_balance( get_id(), -db.get_balance( get_id() ) );
 }
 
 void asset_object::end_lottery( database& db )
