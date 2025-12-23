@@ -67,7 +67,7 @@ using restriction_predicate_function = std::function<predicate_result(const oper
  * @param op_type The tag specifying which operation type the restrictions apply to
  * @return A predicate function which evaluates an operation to determine whether it complies with the restriction
  */
-restriction_predicate_function get_restriction_predicate(vector<restriction> rs, operation::tag_type ...op_type);
+restriction_predicate_function get_restriction_predicate(vector<restriction> rs, operation::tag_type op_type);
 
 } } // namespace graphene::protocol
 
