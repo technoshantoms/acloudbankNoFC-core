@@ -2,7 +2,7 @@
 #include <graphene/protocol/base.hpp>
 #include <graphene/protocol/types.hpp>
 
-namespace graphene { namespace chain {
+namespace graphene { namespace protocol {
 
    struct nft_lottery_benefactor   {
       account_id_type id;
@@ -158,21 +158,22 @@ namespace graphene { namespace chain {
       share_type calculate_fee(const fee_parameters_type &k) const;
    };
 
-} } // graphene::chain
+} } // graphene::protocol
 
-FC_REFLECT( graphene::chain::nft_lottery_benefactor, (id)(share) )
-FC_REFLECT( graphene::chain::nft_lottery_options, (benefactors)(winning_tickets)(ticket_price)(end_date)(ending_on_soldout)(is_active)(delete_tickets_after_draw)(progressive_jackpots) )
+FC_REFLECT( graphene::protocol::nft_lottery_benefactor, (id)(share) )
+FC_REFLECT( graphene::protocol::nft_lottery_options, (benefactors)(winning_tickets)(ticket_price)(end_date)(ending_on_soldout)(is_active)(delete_tickets_after_draw)(progressive_jackpots) )
 
-FC_REFLECT( graphene::chain::nft_metadata_create_operation::fee_parameters_type, (fee) (price_per_kbyte) )
-FC_REFLECT( graphene::chain::nft_metadata_update_operation::fee_parameters_type, (fee) )
-FC_REFLECT( graphene::chain::nft_mint_operation::fee_parameters_type, (fee) (price_per_kbyte) )
-FC_REFLECT( graphene::chain::nft_safe_transfer_from_operation::fee_parameters_type, (fee) (price_per_kbyte) )
-FC_REFLECT( graphene::chain::nft_approve_operation::fee_parameters_type, (fee) )
-FC_REFLECT( graphene::chain::nft_set_approval_for_all_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::protocol::nft_metadata_create_operation::fee_parameters_type, (fee) (price_per_kbyte) )
+FC_REFLECT( graphene::protocol::nft_metadata_update_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::protocol::nft_mint_operation::fee_parameters_type, (fee) (price_per_kbyte) )
+FC_REFLECT( graphene::protocol::nft_safe_transfer_from_operation::fee_parameters_type, (fee) (price_per_kbyte) )
+FC_REFLECT( graphene::protocol::nft_approve_operation::fee_parameters_type, (fee) )
+FC_REFLECT( graphene::protocol::nft_set_approval_for_all_operation::fee_parameters_type, (fee) )
 
-FC_REFLECT( graphene::chain::nft_metadata_create_operation, (fee) (owner) (name) (symbol) (base_uri) (revenue_partner) (revenue_split) (is_transferable) (is_sellable) (account_role) (max_supply) (lottery_options) (extensions) )
-FC_REFLECT( graphene::chain::nft_metadata_update_operation, (fee) (owner) (nft_metadata_id) (name) (symbol) (base_uri) (revenue_partner) (revenue_split) (is_transferable) (is_sellable) (account_role) (extensions) )
-FC_REFLECT( graphene::chain::nft_mint_operation, (fee) (payer) (nft_metadata_id) (owner) (approved) (approved_operators) (token_uri) (extensions) )
-FC_REFLECT( graphene::chain::nft_safe_transfer_from_operation, (fee) (operator_) (from) (to) (token_id) (data) (extensions) )
-FC_REFLECT( graphene::chain::nft_approve_operation, (fee) (operator_) (approved) (token_id) (extensions) )
-FC_REFLECT( graphene::chain::nft_set_approval_for_all_operation, (fee) (owner) (operator_) (approved) (extensions) )
+FC_REFLECT( graphene::protocol::nft_metadata_create_operation, (fee) (owner) (name) (symbol) (base_uri) (revenue_partner) (revenue_split) (is_transferable) (is_sellable) (account_role) (max_supply) (lottery_options) (extensions) )
+FC_REFLECT( graphene::protocol::nft_metadata_update_operation, (fee) (owner) (nft_metadata_id) (name) (symbol) (base_uri) (revenue_partner) (revenue_split) (is_transferable) (is_sellable) (account_role) (extensions) )
+FC_REFLECT( graphene::protocol::nft_mint_operation, (fee) (payer) (nft_metadata_id) (owner) (approved) (approved_operators) (token_uri) (extensions) )
+FC_REFLECT( graphene::protocol::nft_safe_transfer_from_operation, (fee) (operator_) (from) (to) (token_id) (data) (extensions) )
+FC_REFLECT( graphene::protocol::nft_approve_operation, (fee) (operator_) (approved) (token_id) (extensions) )
+FC_REFLECT( graphene::protocol::nft_set_approval_for_all_operation, (fee) (owner) (operator_) (approved) (extensions) )
+
