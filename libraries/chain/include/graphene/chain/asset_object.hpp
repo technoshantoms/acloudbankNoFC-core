@@ -129,6 +129,8 @@ namespace graphene { namespace chain {
          string amount_to_pretty_string(const asset &amount)const
          { FC_ASSERT(amount.asset_id == get_id()); return amount_to_pretty_string(amount.amount); }
 
+         uint32_t get_issuer_num()const
+         { return issuer.instance.value; }
          /// Ticker symbol for this asset, i.e. "USD"
          string symbol;
          /// Maximum number of digits after the decimal point (must be <= 12)
@@ -521,7 +523,7 @@ FC_REFLECT_TYPENAME( graphene::chain::asset_bitasset_data_object )
 FC_REFLECT_TYPENAME( graphene::chain::asset_dynamic_data_object )
 
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::chain::price_feed_with_icr )
-GRAPHENE_EXTERNAL_SERIALIZATION(graphene::chain::lottery_balance_object )
+GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION(graphene::chain::lottery_balance_object )
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::chain::asset_object )
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::chain::asset_bitasset_data_object )
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::chain::asset_dynamic_data_object )
