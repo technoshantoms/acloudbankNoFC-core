@@ -3,7 +3,7 @@
 
 namespace graphene
 {
-    namespace protocol
+    namespace chain
     {
 
         void account_role_create_operation::validate() const
@@ -57,5 +57,5 @@ namespace graphene
             return k.fee + calculate_data_fee(fc::raw::pack_size(*this), k.price_per_kbyte);
         }
 
-    } // namespace protocol
+    } // namespace chain
 } // namespace graphene

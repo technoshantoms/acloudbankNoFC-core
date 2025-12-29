@@ -5,11 +5,6 @@
 #include <graphene/protocol/transaction.hpp>
 #include <graphene/protocol/tnt/validation.hpp>
 
-#include <graphene/chain/custom_permission_object.hpp>
-#include <graphene/chain/offer_object.hpp>
-#include <graphene/chain/nft_object.hpp>
-#include <graphene/chain/account_role_object.hpp>
-
 #include <graphene/chain/withdraw_permission_object.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/worker_object.hpp>

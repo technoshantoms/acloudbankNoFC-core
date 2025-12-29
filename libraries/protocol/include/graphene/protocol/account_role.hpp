@@ -1,10 +1,10 @@
 #pragma once
 #include <graphene/protocol/base.hpp>
 #include <graphene/protocol/types.hpp>
-#include <graphene/protocol/asset.hpp>
+
 namespace graphene
 {
-    namespace protocol
+    namespace chain
     {
 
         struct account_role_create_operation : public base_operation
@@ -70,13 +70,13 @@ namespace graphene
             void validate() const;
             share_type calculate_fee(const fee_parameters_type &k) const { return k.fee; }
         };
-    } // namespace protocol
+    } // namespace chain
 } // namespace graphene
 
-FC_REFLECT(graphene::protocol::account_role_create_operation::fee_parameters_type, (fee)(price_per_kbyte))
-FC_REFLECT(graphene::protocol::account_role_update_operation::fee_parameters_type, (fee)(price_per_kbyte))
-FC_REFLECT(graphene::protocol::account_role_delete_operation::fee_parameters_type, (fee))
+FC_REFLECT(graphene::chain::account_role_create_operation::fee_parameters_type, (fee)(price_per_kbyte))
+FC_REFLECT(graphene::chain::account_role_update_operation::fee_parameters_type, (fee)(price_per_kbyte))
+FC_REFLECT(graphene::chain::account_role_delete_operation::fee_parameters_type, (fee))
 
-FC_REFLECT(graphene::protocol::account_role_create_operation, (fee)(owner)(name)(metadata)(allowed_operations)(whitelisted_accounts)(valid_to)(extensions))
-FC_REFLECT(graphene::protocol::account_role_update_operation, (fee)(owner)(account_role_id)(name)(metadata)(allowed_operations_to_add)(allowed_operations_to_remove)(accounts_to_add)(accounts_to_remove)(valid_to)(extensions))
-FC_REFLECT(graphene::protocol::account_role_delete_operation, (fee)(owner)(account_role_id)(extensions))
+FC_REFLECT(graphene::chain::account_role_create_operation, (fee)(owner)(name)(metadata)(allowed_operations)(whitelisted_accounts)(valid_to)(extensions))
+FC_REFLECT(graphene::chain::account_role_update_operation, (fee)(owner)(account_role_id)(name)(metadata)(allowed_operations_to_add)(allowed_operations_to_remove)(accounts_to_add)(accounts_to_remove)(valid_to)(extensions))
+FC_REFLECT(graphene::chain::account_role_delete_operation, (fee)(owner)(account_role_id)(owner)(extensions))
