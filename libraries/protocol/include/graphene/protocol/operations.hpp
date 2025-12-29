@@ -24,6 +24,7 @@
 #include <graphene/protocol/content_card.hpp>
 #include <graphene/protocol/permission.hpp>
 #include <graphene/protocol/commit_reveal.hpp>
+#include <graphene/protocol/account_role.hpp>
 
 #include <graphene/protocol/nft_lottery.hpp>
 #include <graphene/protocol/lottery_ops.hpp>
@@ -113,27 +114,34 @@ namespace graphene { namespace protocol {
             /* 68 */ tap_open_operation,
             /* 69 */ tap_connect_operation,
             /* 70 */ account_fund_connection_operation,
-            /* 71 */ connection_fund_account_operation,      // VIRTUAL
-            /* 72 */ sweeps_vesting_claim_operation,
+            /* 71 */ connection_fund_account_operation,     // VIRTUAL
+            /* 72 */lottery_asset_create_operation,
+            /* 73 */ticket_purchase_operation,
+            /* 74 */lottery_reward_operation,
+            /* 75 */lottery_end_operation,
+            /* 76 */ sweeps_vesting_claim_operation,
             /* 73 */ custom_permission_create_operation,
             /* 74 */ custom_permission_update_operation,
             /* 75 */ custom_permission_delete_operation,
+            /* 75 */account_role_create_operation,
+            /* 75 */account_role_update_operation,
+            /* 75 */account_role_delete_operation,
             /* 76 */ custom_account_authority_create_operation,
             /* 77 */ custom_account_authority_update_operation,
-            /* 78 */ custom_account_authority_delete_operation,
-            /* 79 */ offer_operation,
-            /* 80 */ bid_operation,
-            /* 81 */ cancel_offer_operation,
-            /* 82 */ finalize_offer_operation,
-            /* 83 */ nft_metadata_create_operation,
-            /* 83 */ nft_metadata_update_operation,
-            /* 85 */ nft_mint_operation,
-            /* 86 */ nft_safe_transfer_from_operation,
-            /* 87 */ nft_approve_operation,
-            /* 88 */ nft_set_approval_for_all_operation,
-            /* 89 */ nft_lottery_token_purchase_operation,
-            /* 90 */ nft_lottery_reward_operation,
-            /* 91 */ nft_lottery_end_operation
+            /* 78 */ custom_account_authority_delete_operation
+            // /* 79 */ offer_operation,
+            // /* 80 */ bid_operation,
+            // /* 81 */ cancel_offer_operation,
+            // /* 82 */ finalize_offer_operation,
+            // /* 83 */ nft_metadata_create_operation,
+            // /* 83 */ nft_metadata_update_operation,
+            // /* 85 */ nft_mint_operation,
+            // /* 86 */ nft_safe_transfer_from_operation,
+            // /* 87 */ nft_approve_operation,
+            // /* 88 */ nft_set_approval_for_all_operation,
+            // /* 89 */ nft_lottery_token_purchase_operation,
+            // /* 90 */ nft_lottery_reward_operation,
+            // /* 91 */ nft_lottery_end_operation
          > operation;
 
    /// @} // operations group
