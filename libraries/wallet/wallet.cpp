@@ -985,6 +985,140 @@ signed_transaction wallet_api::sign_transaction(signed_transaction tx, bool broa
    return my->sign_transaction( tx, broadcast);
 } FC_CAPTURE_AND_RETHROW( (tx) ) }
 
+signed_transaction create_custom_permission(string owner,
+                                               string permission_name,
+                                               authority auth,
+                                               bool broadcast)
+   {
+      custom_permission_create_operation create_op;
+      create_op.owner_account = get_account(owner).id;
+      create_op.permission_name = permission_name;
+      create_op.auth = auth;
+
+      signed_transaction tx;
+      tx.operations.push_back(create_op);
+      set_operation_fees(tx, get_global_properties().parameters.current_fees);
+      tx.validate();
+      return sign_transaction(tx, broadcast);
+   }
+
+   signed_transaction update_custom_permission(string owner,
+                                               custom_permission_id_type permission_id,
+                                               fc::optional<authority> new_auth,
+                                               bool broadcast)
+   {
+      custom_permission_update_operation update_op;
+      update_op.owner_account = get_account(owner).id;
+      update_op.permission_id = permission_id;
+      update_op.new_auth = new_auth;
+
+      signed_transaction tx;
+      tx.operations.push_back(update_op);
+      set_operation_fees(tx, get_global_properties().parameters.current_fees);
+      tx.validate();
+      return sign_transaction(tx, broadcast);
+   }
+
+   signed_transaction delete_custom_permission(string owner,
+                                               custom_permission_id_type permission_id,
+                                               bool broadcast)
+   {
+      custom_permission_delete_operation delete_op;
+      delete_op.owner_account = get_account(owner).id;
+      delete_op.permission_id = permission_id;
+
+      signed_transaction tx;
+      tx.operations.push_back(delete_op);
+      set_operation_fees(tx, get_global_properties().parameters.current_fees);
+      tx.validate();
+      return sign_transaction(tx, broadcast);
+   }
+
+   signed_transaction create_custom_account_authority(string owner,
+                                                      custom_permission_id_type permission_id,
+                                                      int operation_type,
+                                                      fc::time_point_sec valid_from,
+                                                      fc::time_point_sec valid_to,
+                                                      bool broadcast)
+   {
+      custom_account_authority_create_operation create_op;
+      create_op.owner_account = get_account(owner).id;
+      create_op.permission_id = permission_id;
+      create_op.operation_type = operation_type;
+      create_op.valid_from = valid_from;
+      create_op.valid_to = valid_to;
+
+      signed_transaction tx;
+      tx.operations.push_back(create_op);
+      set_operation_fees(tx, get_global_properties().parameters.current_fees);
+      tx.validate();
+      return sign_transaction(tx, broadcast);
+   }
+
+   signed_transaction update_custom_account_authority(string owner,
+                                                      custom_account_authority_id_type auth_id,
+                                                      fc::optional<fc::time_point_sec> new_valid_from,
+                                                      fc::optional<fc::time_point_sec> new_valid_to,
+                                                      bool broadcast)
+   {
+      custom_account_authority_update_operation update_op;
+      update_op.owner_account = get_account(owner).id;
+      update_op.auth_id = auth_id;
+      update_op.new_valid_from = new_valid_from;
+      update_op.new_valid_to = new_valid_to;
+
+      signed_transaction tx;
+      tx.operations.push_back(update_op);
+      set_operation_fees(tx, get_global_properties().parameters.current_fees);
+      tx.validate();
+      return sign_transaction(tx, broadcast);
+   }
+
+   signed_transaction delete_custom_account_authority(string owner,
+                                                      custom_account_authority_id_type auth_id,
+                                                      bool broadcast)
+   {
+      custom_account_authority_delete_operation delete_op;
+      delete_op.owner_account = get_account(owner).id;
+      delete_op.auth_id = auth_id;
+
+      signed_transaction tx;
+      tx.operations.push_back(delete_op);
+      set_operation_fees(tx, get_global_properties().parameters.current_fees);
+      tx.validate();
+      return sign_transaction(tx, broadcast);
+   }
+
+   vector<custom_permission_object> get_custom_permissions(string owner) const
+   {
+      return _remote_db->get_custom_permissions(get_account(owner).id);
+   }
+
+   fc::optional<custom_permission_object> get_custom_permission_by_name(string owner, string permission_name) const
+   {
+      return _remote_db->get_custom_permission_by_name(get_account(owner).id, permission_name);
+   }
+
+   vector<custom_account_authority_object> get_custom_account_authorities(string owner) const
+   {
+      return _remote_db->get_custom_account_authorities(get_account(owner).id);
+   }
+
+   vector<custom_account_authority_object> get_custom_account_authorities_by_permission_id(custom_permission_id_type permission_id) const
+   {
+      return _remote_db->get_custom_account_authorities_by_permission_id(permission_id);
+   }
+
+   vector<custom_account_authority_object> get_custom_account_authorities_by_permission_name(string owner, string permission_name) const
+   {
+      return _remote_db->get_custom_account_authorities_by_permission_name(get_account(owner).id, permission_name);
+   }
+
+   vector<authority> get_active_custom_account_authorities_by_operation(string owner, int operation_type) const
+   {
+      return _remote_db->get_active_custom_account_authorities_by_operation(get_account(owner).id, operation_type);
+   }
+
 
 signed_transaction wallet_api::nft_metadata_create(string owner_account_id_or_name,
                                                    string name,

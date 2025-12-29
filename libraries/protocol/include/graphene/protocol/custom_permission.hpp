@@ -1,13 +1,11 @@
 #pragma once
 #include <graphene/protocol/base.hpp>
 #include <graphene/protocol/authority.hpp>
+#include <graphene/protocol/asset.hpp>
 
-namespace graphene
-{
-namespace protocol
-{
+namespace graphene{namespace protocol{
 
-struct custom_permission_create_operation : public graphene::protocol::base_operation
+struct custom_permission_create_operation : public base_operation
 {
    struct fee_parameters_type
    {
@@ -26,7 +24,7 @@ struct custom_permission_create_operation : public graphene::protocol::base_oper
    share_type calculate_fee(const fee_parameters_type &k) const;
 };
 
-struct custom_permission_update_operation : public graphene::protocol::base_operation
+struct custom_permission_update_operation : public base_operation
 {
    struct fee_parameters_type
    {
@@ -44,7 +42,7 @@ struct custom_permission_update_operation : public graphene::protocol::base_oper
    share_type calculate_fee(const fee_parameters_type &k) const { return k.fee; }
 };
 
-struct custom_permission_delete_operation : public graphene::protocol::base_operation
+struct custom_permission_delete_operation : public base_operation
 {
    struct fee_parameters_type
    {
