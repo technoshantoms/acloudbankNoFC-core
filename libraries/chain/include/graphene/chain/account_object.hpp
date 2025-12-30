@@ -25,8 +25,7 @@
 
 #include <graphene/chain/types.hpp>
 #include <graphene/db/generic_index.hpp>
-#include <graphene/protocol/account.hpp>
-
+#include <graphene/protocol/operations.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
 namespace graphene { namespace chain {
@@ -320,8 +319,8 @@ namespace graphene { namespace chain {
    class account_referrer_index : public secondary_index
    {
       public:
-         virtual void object_loaded( const object& obj ) override;
-         virtual void object_created( const object& obj ) override;
+         virtual void object_inserted( const object& obj ) override;
+         //virtual void object_created( const object& obj ) override;
          virtual void object_removed( const object& obj ) override;
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;
@@ -357,7 +356,7 @@ namespace graphene { namespace chain {
       public:
          virtual void object_inserted( const object& obj ) override;
          virtual void object_removed( const object& obj ) override;
-         virtual void object_created( const object& obj ) override;
+         //virtual void object_created( const object& obj ) override;
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;
 
@@ -388,7 +387,7 @@ namespace graphene { namespace chain {
    {
       public:
          virtual void object_inserted( const object& obj ) override;
-         virtual void object_created( const object& obj ) override;
+         //virtual void object_created( const object& obj ) override;
          virtual void object_removed( const object& obj ) override;
          virtual void about_to_modify( const object& before ) override;
          virtual void object_modified( const object& after  ) override;

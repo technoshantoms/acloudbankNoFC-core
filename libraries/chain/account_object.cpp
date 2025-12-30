@@ -227,12 +227,12 @@ void account_member_index::object_modified(const object& after)
 
 }
 
-void account_referrer_index::object_loaded( const object& obj )
+void account_referrer_index::object_inserted( const object& obj )
 {
 }
-void account_referrer_index::object_created( const object& obj )
-{
-}
+//void account_referrer_index::object_created( const object& obj )
+//{
+//}
 void account_referrer_index::object_removed( const object& obj )
 {
 }

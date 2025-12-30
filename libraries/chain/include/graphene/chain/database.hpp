@@ -381,6 +381,13 @@ namespace graphene { namespace chain {
          void debug_dump();
          void apply_debug_updates();
          void debug_update( const fc::variant_object& update );
+         template<typename Action>
+         auto bypass_safety_checks(Action&& action) {
+            FC_ASSERT(_allow_safety_check_bypass, "Safety check bypass disallowed.");
+            scoped_database_unlocker unlocker(*_check_policy_1, *_check_policy_2);
+            return action();
+         }
+
 
          //////////////////// db_market.cpp ////////////////////
 
