@@ -313,12 +313,47 @@ namespace graphene { namespace chain {
          account_id_type get_id()const { return id; }
    };
 
+      /**
+    *  @brief This secondary index will allow a reverse lookup of all accounts that have been referred by
+    *  a particular account.
+    */
+   class account_referrer_index : public secondary_index
+   {
+      public:
+         virtual void object_loaded( const object& obj ) override;
+         virtual void object_created( const object& obj ) override;
+         virtual void object_removed( const object& obj ) override;
+         virtual void about_to_modify( const object& before ) override;
+         virtual void object_modified( const object& after  ) override;
+
+         /** maps the referrer to the set of accounts that they have referred */
+         map< account_id_type, set<account_id_type> > referred_by;
+   };
+
    /**
     *  @brief This secondary index will allow a reverse lookup of all accounts that a particular key or account
     *  is an potential signing authority.
     */
    class account_member_index : public secondary_index
    {
+      /* std::less::operator() is less efficient so using key_compare here.
+       * Let assume that it has two keys key1 and key2 and we want to insert key3.
+       * the insert function needs to first call std::less::operator() with key1 and key3.
+       * Assume std::less::operator()(key1, key3) returns false.
+       * It has to call std::less::operator() again with the keys switched, 
+       * std::less::operator()(key3, key1), to decide whether key1 is equal to key3 or 
+       * key3 is greater than key1. There are two calls to std::less::operator() to make
+       * a decision if the first call returns false.
+       * std::map::insert and std::set used key_compare, 
+       * there would be sufficient information to make the right decision using just one call.
+       */
+      class key_compare {
+      public:
+         inline bool operator()( const public_key_type& a, const public_key_type& b )const
+         {
+            return a.key_data < b.key_data;
+         }
+      };
       public:
          virtual void object_inserted( const object& obj ) override;
          virtual void object_removed( const object& obj ) override;
@@ -380,8 +415,6 @@ namespace graphene { namespace chain {
    typedef multi_index_container<
       indexed_by<
          ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
-         ordered_unique< tag<by_owner>,
-                         member< account_statistics_object, account_id_type, &account_statistics_object::owner > >,
          ordered_non_unique< tag<by_maintenance_flag>,
                              member< account_balance_object, bool, &account_balance_object::maintenance_flag > >,
          ordered_unique< tag<by_account_asset>,
@@ -439,6 +472,8 @@ namespace graphene { namespace chain {
       account_statistics_object,
       indexed_by<
          ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
+         ordered_unique< tag<by_owner>,
+                         member< account_statistics_object, account_id_type, &account_statistics_object::owner > >,
          ordered_unique< tag<by_maintenance_seq>,
             composite_key<
                account_statistics_object,

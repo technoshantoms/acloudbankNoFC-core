@@ -227,6 +227,22 @@ void account_member_index::object_modified(const object& after)
 
 }
 
+void account_referrer_index::object_loaded( const object& obj )
+{
+}
+void account_referrer_index::object_created( const object& obj )
+{
+}
+void account_referrer_index::object_removed( const object& obj )
+{
+}
+void account_referrer_index::about_to_modify( const object& before )
+{
+}
+void account_referrer_index::object_modified( const object& after  )
+{
+}
+
 const uint8_t  balances_by_account_index::bits = 20;
 const uint64_t balances_by_account_index::mask = (1ULL << balances_by_account_index::bits) - 1;
 
@@ -241,7 +257,7 @@ void balances_by_account_index::object_inserted( const object& obj )
    }
    balances[abo.owner.instance.value >> bits][abo.owner.instance.value & mask][abo.asset_type] = &abo;
 }
-void balances_by_account_index::object_created( const object& obj )
+void balances_by_account_index::object_created( const object& obj ) override
 {
    const auto& abo = dynamic_cast< const account_balance_object& >( obj );
    while( balances.size() < (abo.owner.instance.value >> bits) + 1 )
@@ -252,7 +268,7 @@ void balances_by_account_index::object_created( const object& obj )
    }
    balances[abo.owner.instance.value >> bits][abo.owner.instance.value & mask][abo.asset_type] = &abo;
 }
-void account_member_index::object_created(const object& obj)
+void account_member_index::object_created(const object& obj) override
 {
     assert( dynamic_cast<const account_object*>(&obj) ); // for debug only
     const account_object& a = static_cast<const account_object&>(obj);
