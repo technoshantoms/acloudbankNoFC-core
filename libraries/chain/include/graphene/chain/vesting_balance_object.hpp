@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  */
 #pragma once
+#include <graphene/protocol/vesting.hpp>
+#include <graphene/db/object.hpp>
 
 #include <graphene/db/generic_index.hpp>
 #include <graphene/protocol/asset.hpp>
@@ -30,6 +32,7 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/identity.hpp>
 
+#include <algorithm>
 #include <fc/static_variant.hpp>
 #include <fc/uint128.hpp>
 
@@ -227,6 +230,19 @@ namespace detail {
       }
    };
 
+    struct by_asset_balance_helper_asset_id {
+      typedef asset_id_type result_type;
+      result_type operator()(const vesting_balance_object& vbo) const {
+         return vbo.balance.asset_id;
+      }
+   };
+   struct by_asset_balance_helper_asset_amount {
+      typedef share_type result_type;
+      result_type operator()(const vesting_balance_object& vbo) const {
+         return vbo.balance.amount;
+      }
+   };
+
    /**
     * Used as CompatiblePred
     * Compares two vesting_balance_objects
@@ -254,16 +270,29 @@ namespace detail {
    typedef multi_index_container<
       vesting_balance_object,
       indexed_by<
-         ordered_unique< tag<by_id>, member< object, object_id_type, &object::id >
-         >,
+       ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
          ordered_non_unique< tag<by_account>,
             member<vesting_balance_object, account_id_type, &vesting_balance_object::owner>
          >,
-         hashed_unique< tag<by_vesting_type>,
+        ordered_non_unique< tag<by_asset_balance>,
+           composite_key<
+              vesting_balance_object,
+              by_asset_balance_helper_asset_id,
+              member<vesting_balance_object, vesting_balance_type, &vesting_balance_object::balance_type>,
+              by_asset_balance_helper_asset_amount
+           >,
+          hashed_unique< tag<by_vesting_type>,
             identity<vesting_balance_object>,
             detail::vesting_balance_object_hash,
             detail::vesting_balance_object_equal
-         >
+         >,
+           composite_key_compare<
+              std::less< asset_id_type >,
+              std::less< vesting_balance_type >,
+              std::greater< share_type >
+              //std::less< account_id_type >
+           >
+        >
       >
    > vesting_balance_multi_index_type;
    /**
