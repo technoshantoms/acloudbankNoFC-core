@@ -271,32 +271,31 @@ namespace detail {
    };
 } // detail
 
-   typedef multi_index_container<
+typedef multi_index_container<
       vesting_balance_object,
       indexed_by<
        ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
-      ordered_non_unique< tag<by_account>,
-            member<vesting_balance_object, account_id_type, &vesting_balance_object::owner>
-         >,
+       ordered_non_unique< tag<by_account>,
+            member<vesting_balance_object, account_id_type, &vesting_balance_object::owner>>,
+
       ordered_non_unique< tag<by_asset_balance>,
            composite_key<
               vesting_balance_object,
               by_asset_balance_helper_asset_id,
-              member<vesting_balance_object, vesting_balance_type, &vesting_balance_object::balance_type>,
-              by_asset_balance_helper_asset_amount
-           >,
-       hashed_unique< tag<by_vesting_type>,
-            identity<vesting_balance_object>,
-            detail::vesting_balance_object_hash,
-            detail::vesting_balance_object_equal
-         >,
+              by_asset_balance_helper_asset_amount,
+              member<vesting_balance_object, vesting_balance_type, &vesting_balance_object::balance_type>>>,
+
       composite_key_compare<
               std::less< asset_id_type >,
               std::less< vesting_balance_type >,
               std::greater< share_type >
               //std::less< account_id_type >
-           >
-        >
+              >,
+       hashed_unique< tag<by_vesting_type>,
+            identity<vesting_balance_object>,
+            detail::vesting_balance_object_hash,
+            detail::vesting_balance_object_equal
+         >
       >
    > vesting_balance_multi_index_type;
    /**
