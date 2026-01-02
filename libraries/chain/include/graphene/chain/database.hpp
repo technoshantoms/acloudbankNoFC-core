@@ -263,8 +263,8 @@ namespace graphene { namespace chain {
          const fee_schedule&                    current_fee_schedule()const;
          const account_statistics_object&       get_account_stats_by_owner( account_id_type owner )const;
          const witness_schedule_object&         get_witness_schedule_object()const;
-          bool                                   item_locked(const nft_id_type& item)const;
-           bool                                   account_role_valid(const account_role_object& aro, account_id_type account, optional<int> op_type = optional<int>()) const;
+         bool                                   item_locked(const nft_id_type& item)const;
+         bool                                   account_role_valid(const account_role_object& aro, account_id_type account, optional<int> op_type = optional<int>()) const;
 
          time_point_sec   head_block_time()const;
          uint32_t         head_block_num()const;

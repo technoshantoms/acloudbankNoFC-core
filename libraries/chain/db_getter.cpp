@@ -30,7 +30,7 @@
 #include <graphene/chain/custom_permission_object.hpp>
 #include <graphene/chain/global_property_object.hpp>
 
-//#include <graphene/chain/offer_object.hpp>
+#include <graphene/chain/offer_object.hpp>
 #include <graphene/chain/account_role_object.hpp>
 
 #include <graphene/chain/custom_account_authority_object.hpp>
@@ -180,8 +180,8 @@ vector<authority> database::get_account_custom_authorities(account_id_type accou
 
 bool database::item_locked(const nft_id_type &item) const
 {
-   const auto &offer_idxx = get_index_type<offer_idx>();
-   const auto &oidx = dynamic_cast<const base_primary_index &>(offer_idxx);
+   const auto &offer_idx = get_index_type<offer_index>();
+   const auto &oidx = dynamic_cast<const base_primary_index &>(offer_idx);
    const auto &market_items = oidx.get_secondary_index<graphene::chain::offer_item_index>();
 
    auto items_itr = market_items._locked_items.find(item);
