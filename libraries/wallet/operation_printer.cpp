@@ -318,6 +318,16 @@ std::string operation_printer::operator()(const htlc_redeemed_operation& op) con
    print_redeem(op.htlc_id, wallet.get_account(op.redeemer).name, op.preimage, op.fee);
    return "";
 }
+std::string operation_printer::operator()(const lottery_asset_create_operation& op) const
+{
+   out << "Create ";
+   if( op.bitasset_opts.valid() )
+      out << "BitAsset ";
+   else
+      out << "User-Issued Asset ";
+   out << "'" << op.symbol << "' with issuer " << wallet.get_account(op.issuer).name;
+   return fee(op.fee);
+}
 
 std::string operation_printer::operator()(const htlc_create_operation& op) const
 {

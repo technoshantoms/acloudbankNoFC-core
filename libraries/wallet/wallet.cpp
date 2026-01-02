@@ -99,6 +99,24 @@ namespace graphene { namespace wallet {
 
       return fc::sha256::hash( to_sign.str() );
    }
+
+   string address_to_shorthash( const address& addr )
+{
+   uint32_t x = addr.addr._hash[0].value();
+   static const char hd[] = "0123456789abcdef";
+   string result;
+
+   result += hd[(x >> 0x1c) & 0x0f];
+   result += hd[(x >> 0x18) & 0x0f];
+   result += hd[(x >> 0x14) & 0x0f];
+   result += hd[(x >> 0x10) & 0x0f];
+   result += hd[(x >> 0x0c) & 0x0f];
+   result += hd[(x >> 0x08) & 0x0f];
+   result += hd[(x >> 0x04) & 0x0f];
+   result += hd[(x        ) & 0x0f];
+
+   return result;
+}
    vector<brain_key_info> utility::derive_owner_keys_from_brain_key(string brain_key, int number_of_desired_keys)
    {
       // Safety-check
@@ -246,6 +264,7 @@ fc::optional<fc::variant> wallet_api::get_htlc(std::string htlc_id) const
       transfer["amount"] = graphene::app::uint128_amount_to_string( obj.transfer.amount.value, asset.precision );
       if (obj.memo.valid())
          transfer["memo"] = my->read_memo( *obj.memo );
+      
       class htlc_hash_to_variant_visitor
       {
          public:
