@@ -90,7 +90,7 @@ namespace graphene
          share_type calculate_fee(const fee_parameters_type &k) const;
       };
 
-      enum class result_type
+      enum class result_types
       {
          Expired = 0,
          ExpiredNoBid = 1,
@@ -109,7 +109,7 @@ namespace graphene
 
          offer_id_type offer_id;
 
-         result_type result;
+         result_types result;
 
          extensions_type extensions;
 
@@ -136,7 +136,7 @@ FC_REFLECT(graphene::protocol::cancel_offer_operation::fee_parameters_type,
 FC_REFLECT(graphene::protocol::cancel_offer_operation,
            (fee)(issuer)(offer_id)(extensions));
 
-FC_REFLECT_ENUM(graphene::protocol::result_type, (Expired)(ExpiredNoBid)(Cancelled));
+FC_REFLECT_ENUM(graphene::protocol::result_types, (Expired)(ExpiredNoBid)(Cancelled));
 FC_REFLECT(graphene::protocol::finalize_offer_operation::fee_parameters_type,
            (fee));
 FC_REFLECT(graphene::protocol::finalize_offer_operation,

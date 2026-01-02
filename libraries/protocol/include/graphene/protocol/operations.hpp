@@ -139,9 +139,9 @@ namespace graphene { namespace protocol {
              /* 93 */ nft_safe_transfer_from_operation,
              /* 94 */ nft_approve_operation,
              /* 95 */ nft_set_approval_for_all_operation
-              /* 96 */ nft_lottery_token_purchase_operation,
-              /* 97 */ nft_lottery_reward_operation,
-              /* 98 */ nft_lottery_end_operation
+              // /* 96 */ nft_lottery_token_purchase_operation,
+              // /* 97 */ nft_lottery_reward_operation,
+              // /* 98 */ nft_lottery_end_operation
          > operation;
 
    /// @} // operations group
