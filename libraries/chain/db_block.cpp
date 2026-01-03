@@ -1,5 +1,3 @@
-
-
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/db_with.hpp>
 #include <graphene/chain/hardfork.hpp>
@@ -14,18 +12,30 @@
 #include <graphene/chain/exceptions.hpp>
 #include <graphene/chain/evaluator.hpp>
 #include <graphene/chain/witness_schedule_object.hpp>
-
 #include <graphene/protocol/fee_schedule.hpp>
-#include <graphene/protocol/operations.hpp>
 
-#include <fc/crypto/digest.hpp>
 #include <fc/io/raw.hpp>
-#include <fc/thread/non_preemptable_scope_check.hpp>
+#include <fc/crypto/digest.hpp>
 #include <fc/thread/parallel.hpp>
 
-namespace {
 
-   struct proposed_operations_digest_accumulator
+namespace graphene { namespace chain {
+bool database::is_known_block( const block_id_type& id )const
+{
+   return _fork_db.is_known_block(id) || _block_id_to_block.contains(id);
+}
+/**
+ * Only return true *if* the transaction has not expired or been invalidated. If this
+ * method is called with a VERY old transaction we will return false, they should
+ * query things by blocks if they are that old.
+ */
+bool database::is_known_transaction( const transaction_id_type& id )const
+{
+   c
+}onst auto& trx_idx = get_index_type<transaction_index>().indices().get<by_trx_id>();
+   return trx_idx.find( id ) != trx_idx.end();
+//satia
+ struct proposed_operations_digest_accumulator
    {
       typedef void result_type;
 
@@ -45,23 +55,6 @@ namespace {
 
       std::vector<fc::sha256> proposed_operations_digests;
    };
-
-namespace graphene { namespace chain {
-
-bool database::is_known_block( const block_id_type& id )const
-{
-   return _fork_db.is_known_block(id) || _block_id_to_block.contains(id);
-}
-/**
- * Only return true *if* the transaction has not expired or been invalidated. If this
- * method is called with a VERY old transaction we will return false, they should
- * query things by blocks if they are that old.
- */
-bool database::is_known_transaction( const transaction_id_type& id )const
-{
-   const auto& trx_idx = get_index_type<transaction_index>().indices().get<by_trx_id>();
-   return trx_idx.find( id ) != trx_idx.end();
-}
 
 block_id_type  database::get_block_id_for_num( uint32_t block_num )const
 { try {

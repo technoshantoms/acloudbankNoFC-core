@@ -24,16 +24,13 @@
  */
 
 #include <graphene/chain/database.hpp>
-
+#include <graphene/chain/custom_account_authority_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/chain_property_object.hpp>
 #include <graphene/chain/global_property_object.hpp>
-
-#include <graphene/chain/custom_permission_object.hpp>
-#include <graphene/chain/custom_account_authority_object.hpp>
-
-#include <graphene/chain/offer_object.hpp>
+#include <graphene/chain/custom_authority_object.hpp>
 #include <graphene/chain/account_role_object.hpp>
+#include <graphene/chain/custom_permission_object.hpp>
 
 #include <ctime>
 #include <algorithm>
