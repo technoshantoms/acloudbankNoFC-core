@@ -24,6 +24,10 @@ constexpr int64_t GRAPHENE_MAX_SHARE_SUPPLY (1000000000000000LL); // 10 ^ 15
 
 #define GRAPHENE_IRREVERSIBLE_THRESHOLD                      (70 * GRAPHENE_1_PERCENT)
 
+// counter used to determine bits of entropy
+//        must be less than or equal to secret_hash_type::data_length()
+#define GRAPHENE_RNG_SEED_LENGTH (160 / 8)
+
 /**
  * every second, the fraction of burned core asset which cycles is
  * GRAPHENE_CORE_ASSET_CYCLE_RATE / (1 << GRAPHENE_CORE_ASSET_CYCLE_RATE_BITS)

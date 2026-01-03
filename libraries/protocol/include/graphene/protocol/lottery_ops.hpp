@@ -23,6 +23,8 @@
  */
 #pragma once
 #include <graphene/protocol/base.hpp>
+#include <graphene/protocol/asset.hpp>
+#include <graphene/protocol/asset_ops.hpp>
 
 namespace graphene { namespace protocol {
 

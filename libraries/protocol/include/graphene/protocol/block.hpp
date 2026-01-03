@@ -34,6 +34,8 @@ namespace graphene { namespace protocol {
       uint32_t                      block_num()const { return num_from_id(previous) + 1; }
       fc::time_point_sec            timestamp;
       witness_id_type               witness;
+      secret_hash_type              next_secret_hash;
+      secret_hash_type              previous_secret;
       checksum_type                 transaction_merkle_root;
       // Note: when we need to add data to `extensions`, remember to review `database::_generate_block()`.
       //       More info in https://github.com/bitshares/bitshares-core/issues/1136

@@ -922,6 +922,41 @@ signed_transaction wallet_api::create_witness(string owner_account,
    return my->create_witness(owner_account, url, broadcast);
 }
 
+ signed_transaction create_witness(string owner_account,
+                                     string url,
+                                     bool broadcast /* = false */)
+   { try {
+      fc::scoped_lock<fc::mutex> lock(_resync_mutex);
+      account_object witness_account = get_account(owner_account);
+      fc::ecc::private_key active_private_key = get_private_key_for_account(witness_account);
+      int witness_key_index = find_first_unused_derived_key_index(active_private_key);
+      fc::ecc::private_key witness_private_key = derive_private_key(key_to_wif(active_private_key), witness_key_index);
+      graphene::chain::public_key_type witness_public_key = witness_private_key.get_public_key();
+
+      witness_create_operation witness_create_op;
+      witness_create_op.witness_account = witness_account.id;
+      witness_create_op.block_signing_key = witness_public_key;
+      witness_create_op.url = url;
+
+      secret_hash_type::encoder enc;
+      fc::raw::pack(enc, witness_private_key);
+      fc::raw::pack(enc, secret_hash_type());
+      witness_create_op.initial_secret = enc.result();
+
+
+      if (_remote_db->get_witness_by_account(account_id_to_string(witness_create_op.witness_account)))
+         FC_THROW("Account ${owner_account} is already a witness", ("owner_account", owner_account));
+
+      signed_transaction tx;
+      tx.operations.push_back( witness_create_op );
+      set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
+      tx.validate();
+
+      _wallet.pending_witness_registrations[owner_account] = key_to_wif(witness_private_key);
+
+      return sign_transaction( tx, broadcast );
+   } FC_CAPTURE_AND_RETHROW( (owner_account)(broadcast) ) 
+ }
 signed_transaction wallet_api::create_worker(
    string owner_account,
    time_point_sec work_begin_date,
@@ -952,6 +987,32 @@ signed_transaction wallet_api::update_witness(
 {
    return my->update_witness(witness_name, url, block_signing_key, broadcast);
 }
+signed_transaction update_witness(string witness_name,
+                                     string url,
+                                     string block_signing_key,
+                                     bool broadcast /* = false */)
+   { try {
+      witness_object witness = get_witness(witness_name);
+      account_object witness_account = get_account( witness.witness_account );
+
+      witness_update_operation witness_update_op;
+      witness_update_op.witness = witness.id;
+      witness_update_op.witness_account = witness_account.id;
+      if( url != "" )
+         witness_update_op.new_url = url;
+      if( block_signing_key != "" ) {
+         witness_update_op.new_signing_key = public_key_type( block_signing_key );
+         witness_update_op.new_initial_secret = secret_hash_type::hash(secret_hash_type());
+      }
+
+      signed_transaction tx;
+      tx.operations.push_back( witness_update_op );
+      set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees );
+      tx.validate();
+
+      return sign_transaction( tx, broadcast );
+     } FC_CAPTURE_AND_RETHROW( (witness_name)(url)(block_signing_key)(broadcast) ) 
+   }
 
 vector< vesting_balance_object_with_info > wallet_api::get_vesting_balances( string account_name )
 {

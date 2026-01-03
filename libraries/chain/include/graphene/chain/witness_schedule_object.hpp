@@ -34,6 +34,8 @@ class witness_schedule_object : public graphene::db::abstract_object<witness_sch
       static constexpr uint8_t type_id = impl_witness_schedule_object_type;
 
       vector< witness_id_type > current_shuffled_witnesses;
+
+      std::array< char, sizeof(secret_hash_type) > rng_seed = {};
 };
 
 } }

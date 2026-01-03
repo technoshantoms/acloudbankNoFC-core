@@ -67,6 +67,8 @@ namespace graphene { namespace chain {
          static constexpr uint8_t space_id = implementation_ids;
          static constexpr uint8_t type_id  = impl_dynamic_global_property_object_type;
 
+         secret_hash_type  random;
+
          uint32_t          head_block_number = 0;
          block_id_type     head_block_id;
          time_point_sec    time;

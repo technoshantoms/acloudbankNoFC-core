@@ -249,6 +249,7 @@ using block_id_type = fc::ripemd160;
 using checksum_type = fc::ripemd160;
 using transaction_id_type = fc::ripemd160;
 using digest_type = fc::sha256;
+using secret_hash_type = fc::ripemd160;
 using signature_type = fc::ecc::compact_signature;
 using share_type = safe<int64_t>;
 using weight_type = uint16_t;
@@ -334,6 +335,7 @@ GRAPHENE_DEFINE_IDS(protocol, protocol_ids, /*protocol objects are not prefixed*
                     /* 1.28.x */ (nft_metadata)
                     /* 1.29.x */ (nft)
                     /* 1.30.x */ (account_role)
+                    /* 1.31.x */(random_number)
                    )
 
 FC_REFLECT(graphene::protocol::public_key_type, (key_data))
