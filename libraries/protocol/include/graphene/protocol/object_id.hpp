@@ -107,8 +107,10 @@ namespace graphene { namespace db {
    template<uint8_t SpaceID, uint8_t TypeID>
    struct object_id
    {
-      static constexpr uint8_t space_id = SpaceID;
-      static constexpr uint8_t type_id = TypeID;
+      //static constexpr uint8_t space_id = SpaceID;
+      //static constexpr uint8_t type_id = TypeID;
+      static const uint8_t space_id = SpaceID;
+      static const uint8_t type_id = TypeID;
       object_id() = default;
       object_id( unsigned_int i ):instance(i){}
       explicit object_id( uint64_t i ):instance(i)
@@ -167,11 +169,9 @@ template<uint8_t SpaceID, uint8_t TypeID>
 struct reflector<graphene::db::object_id<SpaceID,TypeID> >
 {
     typedef graphene::db::object_id<SpaceID,TypeID> type;
-    typedef std::true_type is_defined;
     using native_members = typelist::list<fc::field_reflector<0, type, unsigned_int, &type::instance>>;
-    using inherited_members = typelist::list<>;
     using members = native_members;
-    using base_classes = typelist::list<>;
+    typedef std::true_type  is_defined;
     enum  member_count_enum {
       local_member_count = 1,
       total_member_count = 1
@@ -183,6 +183,7 @@ struct reflector<graphene::db::object_id<SpaceID,TypeID> >
        visitor.TEMPLATE operator()<member_type,type,&type::instance>( "instance" );
     }
 };
+
 namespace member_names {
 template<uint8_t S, uint8_t T>
 struct member_name<graphene::db::object_id<S,T>, 0> { static constexpr const char* value = "instance"; };

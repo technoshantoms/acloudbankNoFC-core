@@ -2,6 +2,7 @@
 #pragma once
 
 #include <graphene/protocol/fee_schedule.hpp>
+#include <graphene/protocol/protocol.hpp>
 
 #include <graphene/chain/global_property_object.hpp>
 #include <graphene/chain/node_property_object.hpp>
@@ -19,7 +20,7 @@
 #include <fc/signals.hpp>
 
 #include <fc/log/logger.hpp>
-
+#include <fc/crypto/hash_ctr_rng.hpp>
 #include <map>
 
 namespace graphene { namespace protocol { struct predicate_result; } }
@@ -128,6 +129,8 @@ namespace graphene { namespace chain {
          void                              add_checkpoints( const flat_map<uint32_t,block_id_type>& checkpts );
          const flat_map<uint32_t,block_id_type> get_checkpoints()const { return _checkpoints; }
          bool before_last_checkpoint()const;
+
+         void check_transaction_for_duplicated_operations(const signed_transaction& trx);
 
          bool push_block( const signed_block& b, uint32_t skip = skip_nothing );
          processed_transaction push_transaction( const precomputable_transaction& trx, uint32_t skip = skip_nothing );
@@ -686,6 +689,8 @@ namespace graphene { namespace chain {
          /// Whether to update votes of standby witnesses and committee members when performing chain maintenance.
          /// Set it to true to provide accurate data to API clients, set to false to have better performance.
          bool                              _track_standby_votes = true;
+
+         fc::hash_ctr_rng<secret_hash_type, 20> _random_number_generator;
 
          /**
           * Whether database is successfully opened or not.

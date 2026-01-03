@@ -334,6 +334,7 @@ GRAPHENE_DEFINE_IDS(protocol, protocol_ids, /*protocol objects are not prefixed*
                     /* 1.28.x */ (nft_metadata)
                     /* 1.29.x */ (nft)
                     /* 1.30.x */ (account_role)
+                    /* 1.31.x */(random_number)
                    )
 
 FC_REFLECT(graphene::protocol::public_key_type, (key_data))
