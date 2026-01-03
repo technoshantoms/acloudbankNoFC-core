@@ -27,13 +27,14 @@
 
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/chain_property_object.hpp>
-#include <graphene/chain/global_property_object.hpp>
-
 #include <graphene/chain/custom_permission_object.hpp>
-#include <graphene/chain/custom_account_authority_object.hpp>
+#include <graphene/chain/global_property_object.hpp>
 
 #include <graphene/chain/offer_object.hpp>
 #include <graphene/chain/account_role_object.hpp>
+
+#include <graphene/chain/custom_account_authority_object.hpp>
+#include <graphene/chain/custom_authority_object.hpp>
 
 #include <ctime>
 #include <algorithm>
@@ -67,8 +68,7 @@ const dynamic_global_property_object& database::get_dynamic_global_properties() 
 
 const fee_schedule&  database::current_fee_schedule()const
 {
-   // return get_global_properties().parameters.get_current_fees();
-   return std::ref( *get_global_properties().parameters.current_fees );
+   return get_global_properties().parameters.get_current_fees();
 }
 
 time_point_sec database::head_block_time()const
@@ -146,33 +146,9 @@ uint32_t database::last_non_undoable_block_num() const
    return head_block_num() - ( _undo_db.size() - _undo_db.active_sessions() );
 }
 
-std::vector<uint32_t> database::get_seeds( asset_id_type for_asset, uint8_t count_winners ) const
-{
-   FC_ASSERT( count_winners <= 64 );
-   std::string salted_string = std::string(_random_number_generator._seed) + std::to_string(for_asset.instance.value);
-   auto seeds_hash = fc::sha256::hash(salted_string);
-   uint32_t* seeds = (uint32_t*)(seeds_hash._hash);
-
-   std::vector<uint32_t> result;
-   result.reserve(64);
-
-   for( int s = 0; s < 8; ++s ) {
-      auto sub_seeds_hash = fc::sha256::hash(std::to_string(seeds[s]) + std::to_string(for_asset.instance.value));
-      uint32_t* sub_seeds = (uint32_t*) sub_seeds_hash._hash;
-      for( int ss = 0; ss < 8; ++ss ) {
-         result.push_back(sub_seeds[ss]);
-      }
-   }
-   return result;
-}
-
 const account_statistics_object& database::get_account_stats_by_owner( account_id_type owner )const
 {
-   //return account_statistics_id_type(owner.instance)(*this);
-   auto& idx = get_index_type<account_stats_index>().indices().get<by_owner>();
-   auto itr = idx.find( owner );
-   FC_ASSERT( itr != idx.end(), "Can not find account statistics object for owner ${a}", ("a",owner) );
-   return *itr;
+   return account_statistics_id_type(owner.instance)(*this);
 }
 
 const witness_schedule_object& database::get_witness_schedule_object()const
@@ -216,37 +192,6 @@ bool database::account_role_valid(const account_role_object &aro, account_id_typ
    return (aro.valid_to > head_block_time()) &&
           (aro.whitelisted_accounts.find(account) != aro.whitelisted_accounts.end()) &&
           (!op_type || (aro.allowed_operations.find(*op_type) != aro.allowed_operations.end()));
-}
-vector<uint64_t> database::get_random_numbers(uint64_t minimum, uint64_t maximum, uint64_t selections, bool duplicates)
-{
-   FC_ASSERT( selections <= 100000 );
-   if (duplicates == false) {
-      FC_ASSERT( maximum - minimum >= selections );
-   }
-
-   vector<uint64_t> v;
-   v.reserve(selections);
-
-   if (duplicates) {
-      for (uint64_t i = 0; i < selections; i++) {
-         int64_t rnd = get_random_bits(maximum - minimum) + minimum;
-         v.push_back(rnd);
-      }
-   } else {
-      vector<uint64_t> tmpv;
-      tmpv.reserve(selections);
-      for (uint64_t i = minimum; i < maximum; i++) {
-         tmpv.push_back(i);
-      }
-
-      for (uint64_t i = 0; (i < selections) && (tmpv.size() > 0); i++) {
-         uint64_t idx = get_random_bits(tmpv.size());
-         v.push_back(tmpv.at(idx));
-         tmpv.erase(tmpv.begin() + idx);
-      }
-   }
-
-   return v;
 }
 
 } }

@@ -1,14 +1,10 @@
 #pragma once
 
 #include <graphene/chain/types.hpp>
-#include <graphene/db/generic_index.hpp>
-#include <graphene/protocol/account.hpp>
-#include <graphene/protocol/nft_ops.hpp>
-#include <graphene/protocol/offer.hpp>
-#include <graphene/protocol/operations.hpp>
-#include <graphene/db/object.hpp>
 
-#include <boost/multi_index/composite_key.hpp>
+#include <graphene/protocol/operations.hpp>
+
+#include <graphene/db/generic_index.hpp>
 
 namespace graphene
 {
@@ -56,8 +52,7 @@ namespace graphene
 
             bool buying_item;
             fc::time_point_sec offer_expiration_date;
-            
-            result_types result;
+            result_type result;
 
             offer_history_id_type get_id() const { return id; }
         };

@@ -34,8 +34,6 @@
 #include <graphene/protocol/custom_account_authority.hpp>
 #include <graphene/protocol/offer.hpp>
 #include <graphene/protocol/nft_ops.hpp>
-#include <graphene/protocol/random_number.hpp>
-
 
 namespace graphene { namespace protocol {
 
@@ -140,11 +138,10 @@ namespace graphene { namespace protocol {
              /* 92 */ nft_mint_operation,
              /* 93 */ nft_safe_transfer_from_operation,
              /* 94 */ nft_approve_operation,
-             /* 95 */ nft_set_approval_for_all_operation,
-             /* 96 */ nft_lottery_token_purchase_operation,
-             /* 97 */ nft_lottery_reward_operation,
-             /* 98 */ nft_lottery_end_operation,
-             /* 99 */random_number_store_operation
+             /* 95 */ nft_set_approval_for_all_operation
+              // /* 96 */ nft_lottery_token_purchase_operation,
+              // /* 97 */ nft_lottery_reward_operation,
+              // /* 98 */ nft_lottery_end_operation
          > operation;
 
    /// @} // operations group

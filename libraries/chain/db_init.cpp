@@ -30,7 +30,6 @@
 #include <graphene/chain/worker_object.hpp>
 #include <graphene/chain/htlc_object.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
-#include <graphene/chain/random_number_object.hpp>
 
 //NFT MINT
 
