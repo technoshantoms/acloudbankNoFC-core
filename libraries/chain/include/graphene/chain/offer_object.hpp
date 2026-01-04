@@ -1,14 +1,13 @@
 #pragma once
 
 #include <graphene/chain/types.hpp>
-#include <graphene/db/generic_index.hpp>
-#include <graphene/protocol/account.hpp>
-#include <graphene/protocol/nft_ops.hpp>
-#include <graphene/protocol/offer.hpp>
-#include <graphene/protocol/operations.hpp>
+
+//SATIA
 #include <graphene/db/object.hpp>
 
-#include <boost/multi_index/composite_key.hpp>
+#include <graphene/protocol/operations.hpp>
+
+#include <graphene/db/generic_index.hpp>
 
 namespace graphene
 {
@@ -44,7 +43,7 @@ namespace graphene
         {
         public:
             static const uint8_t space_id = implementation_ids;
-            static const uint8_t type_id = impl_offer_history_object_type;
+            static const uint8_t type_id = offer_history_object;
 
             account_id_type issuer;
 
@@ -57,9 +56,13 @@ namespace graphene
             bool buying_item;
             fc::time_point_sec offer_expiration_date;
             
-            result_types result;
+            decltype(auto)  result;
 
-            offer_history_id_type get_id() const { return id; }
+            decltype(auto) get_id() const { return id; }
+
+           // decltype result;
+
+           // offer_history_object get_id() const { return id; }
         };
 
         class offer_item_index : public secondary_index

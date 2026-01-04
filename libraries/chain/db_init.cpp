@@ -83,19 +83,20 @@
 #include <fc/uint128.hpp>
 #include <boost/algorithm/string.hpp>
 
-// FOR NFT
-/*const uint8_t nft_object::space_id;
-const uint8_t nft_object::type_id;
 const uint8_t offer_object::space_id;
 const uint8_t offer_object::type_id;
 
 const uint8_t offer_history_object::space_id;
 const uint8_t offer_history_object::type_id;
 
+const uint8_t account_role_object::space_id;
+const uint8_t account_role_object::type_id;
+
 const uint8_t nft_lottery_balance_object::space_id;
 const uint8_t nft_lottery_balance_object::type_id;
 
-*/
+const uint8_t random_number_object::space_id;
+const uint8_t random_number_object::type_id;
 namespace graphene { namespace chain {
 
 
@@ -191,6 +192,7 @@ void database::initialize_evaluators()
    register_evaluator<nft_lottery_token_purchase_evaluator>();
    register_evaluator<nft_lottery_reward_evaluator>();
    register_evaluator<nft_lottery_end_evaluator>();
+   register_consensus_evaluator<ticket_purchase_evaluator>(); //satia
    register_consensus_evaluator<lottery_reward_evaluator>();
    register_consensus_evaluator<lottery_end_evaluator>();
    register_consensus_evaluator<sweeps_vesting_claim_evaluator>();
@@ -242,6 +244,7 @@ void database::initialize_indexes()
    add_index< primary_index<offer_history_index                           > >();
    add_index< primary_index<nft_lottery_balance_index                     > >();
 
+   add_index< primary_index<random_number_index                           > >();
    //Implementation object indexes
    add_index< primary_index<transaction_index                             > >();
 
@@ -265,6 +268,9 @@ void database::initialize_indexes()
    add_index< primary_index< content_card_index,                        20> >();
    add_index< primary_index< permission_index,                          20> >();
    add_index< primary_index< commit_reveal_index,                       20> >();
+
+   _check_policy_1->lock();
+   _check_policy_2->lock();
 }
 
 void database::init_genesis(const genesis_state_type& genesis_state)

@@ -24,13 +24,18 @@
  */
 
 #include <graphene/chain/database.hpp>
+
+#include <graphene/db/index.hpp>
+#include <graphene/chain/account_role_object.hpp>
 #include <graphene/chain/custom_account_authority_object.hpp>
+#include <graphene/chain/custom_permission_object.hpp>
+#include <graphene/chain/offer_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/chain_property_object.hpp>
 #include <graphene/chain/global_property_object.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
-#include <graphene/chain/account_role_object.hpp>
-#include <graphene/chain/custom_permission_object.hpp>
+
+#include <graphene/chain/nft_object.hpp>
 
 #include <ctime>
 #include <algorithm>
@@ -226,7 +231,7 @@ vector<uint64_t> database::get_random_numbers(uint64_t minimum, uint64_t maximum
 
    if (duplicates) {
       for (uint64_t i = 0; i < selections; i++) {
-         int64_t rnd = get_random_bits(maximum - minimum) + minimum;
+         int64_t rnd = get_random_numbers(maximum - minimum) + minimum;
          v.push_back(rnd);
       }
    } else {
@@ -237,7 +242,7 @@ vector<uint64_t> database::get_random_numbers(uint64_t minimum, uint64_t maximum
       }
 
       for (uint64_t i = 0; (i < selections) && (tmpv.size() > 0); i++) {
-         uint64_t idx = get_random_bits(tmpv.size());
+         uint64_t idx = get_random_numbers(tmpv.size());
          v.push_back(tmpv.at(idx));
          tmpv.erase(tmpv.begin() + idx);
       }

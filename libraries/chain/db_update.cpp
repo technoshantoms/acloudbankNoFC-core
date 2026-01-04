@@ -524,6 +524,11 @@ void database::update_withdraw_permissions()
       remove(*permit_index.begin());
 }
 
+uint64_t database::get_random_numbers( uint64_t bound )
+{
+   return _random_number_generator(bound);
+}
+
 void database::clear_expired_htlcs()
 {
    const auto& htlc_idx = get_index_type<htlc_index>().indices().get<by_expiration>();

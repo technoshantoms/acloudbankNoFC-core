@@ -1,9 +1,6 @@
-
 #pragma once
 
 #include <graphene/protocol/fee_schedule.hpp>
-#include <graphene/protocol/protocol.hpp>
-
 #include <graphene/chain/global_property_object.hpp>
 #include <graphene/chain/node_property_object.hpp>
 #include <graphene/chain/account_object.hpp>
@@ -265,6 +262,7 @@ namespace graphene { namespace chain {
          const node_property_object&            get_node_properties()const;
          const fee_schedule&                    current_fee_schedule()const;
          const account_statistics_object&       get_account_stats_by_owner( account_id_type owner )const;
+         std::vector<uint32_t>                  get_seeds( asset_id_type for_asset, uint8_t count_winners )const;
          const witness_schedule_object&         get_witness_schedule_object()const;
          bool                                   item_locked(const nft_id_type& item)const;
          bool                                   account_role_valid(const account_role_object& aro, account_id_type account, optional<int> op_type = optional<int>()) const;
@@ -292,6 +290,7 @@ namespace graphene { namespace chain {
 
          uint32_t last_non_undoable_block_num() const;
          vector<authority> get_account_custom_authorities(account_id_type account, const operation& op)const;
+         vector<uint64_t> get_random_numbers(uint64_t minimum, uint64_t maximum, uint64_t selections, bool duplicates);
          //////////////////// db_init.cpp ////////////////////
 
          void initialize_evaluators();

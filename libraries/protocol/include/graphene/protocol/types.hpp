@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <memory>
@@ -61,11 +60,11 @@ namespace fc { namespace raw { \
    GRAPHENE_EXTERNAL_SERIALIZATION_PACK(ext, type)
 
 #define GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION(type) GRAPHENE_EXTERNAL_SERIALIZATION(extern, type)
- #define GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION(type) GRAPHENE_EXTERNAL_SERIALIZATION(/*not extern*/, type)
+#define GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION(type) GRAPHENE_EXTERNAL_SERIALIZATION(/*not extern*/, type)
 
- #define GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION_VARIANT(type) \
+#define GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION_VARIANT(type) \
    GRAPHENE_EXTERNAL_SERIALIZATION_VARIANT(/*not extern*/, type)
- #define GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION_PACK(type) \
+#define GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION_PACK(type) \
    GRAPHENE_EXTERNAL_SERIALIZATION_PACK(/*not extern*/, type)
 
 #define GRAPHENE_NAME_TO_OBJECT_TYPE(x, prefix, name) BOOST_PP_CAT(prefix, BOOST_PP_CAT(name, _object_type))
@@ -239,8 +238,7 @@ const static uint16_t UIA_VALID_FLAGS_MASK = UIA_ASSET_ISSUER_PERMISSION_MASK;
 enum reserved_spaces {
     relative_protocol_ids = 0,
     protocol_ids          = 1,
-    implementation_ids    = 2,
-    api_ids               = 3 ///< Non-consensus objects used for API. Tracked by respective plugins.
+    implementation_ids    = 2
 };
 
 inline bool is_relative(object_id_type o) { return o.space() == 0; }
@@ -248,8 +246,8 @@ inline bool is_relative(object_id_type o) { return o.space() == 0; }
 using block_id_type = fc::ripemd160;
 using checksum_type = fc::ripemd160;
 using transaction_id_type = fc::ripemd160;
-using digest_type = fc::sha256;
 using secret_hash_type = fc::ripemd160;
+using digest_type = fc::sha256;
 using signature_type = fc::ecc::compact_signature;
 using share_type = safe<int64_t>;
 using weight_type = uint16_t;
@@ -304,7 +302,7 @@ void from_variant( const fc::variant& var, std::shared_ptr<const graphene::proto
 
 /// Object types in the Protocol Space (enum object_type (1.x.x))
 GRAPHENE_DEFINE_IDS(protocol, protocol_ids, /*protocol objects are not prefixed*/,
-                    /* 1.0.x  */ (null) // no data
+                     /* 1.0.x  */ (null) // no data
                     /* 1.1.x  */ (base) // no data
                     /* 1.2.x  */ (account)
                     /* 1.3.x  */ (asset)
@@ -365,9 +363,9 @@ FC_REFLECT_ENUM(graphene::protocol::asset_issuer_permission_flags,
 
 namespace fc { namespace raw {
    extern template void pack( datastream<size_t>& s, const graphene::protocol::public_key_type& tx,
-                             uint32_t _max_depth=FC_PACK_MAX_DEPTH );
+                              uint32_t _max_depth );
    extern template void pack( datastream<char*>& s, const graphene::protocol::public_key_type& tx,
-                              uint32_t _max_depth=FC_PACK_MAX_DEPTH );
+                              uint32_t _max_depth );
    extern template void unpack( datastream<const char*>& s, graphene::protocol::public_key_type& tx,
-                              uint32_t _max_depth=FC_PACK_MAX_DEPTH );
+                                uint32_t _max_depth );
 } } // fc::raw
