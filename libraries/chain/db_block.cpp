@@ -31,30 +31,10 @@ bool database::is_known_block( const block_id_type& id )const
  */
 bool database::is_known_transaction( const transaction_id_type& id )const
 {
-   c
-}onst auto& trx_idx = get_index_type<transaction_index>().indices().get<by_trx_id>();
+   const auto& trx_idx = get_index_type<transaction_index>().indices().get<by_trx_id>();
    return trx_idx.find( id ) != trx_idx.end();
-//satia
- struct proposed_operations_digest_accumulator
-   {
-      typedef void result_type;
-
-      void operator()(const graphene::chain::proposal_create_operation& proposal)
-      {
-         for (auto& operation: proposal.proposed_ops)
-         {
-            proposed_operations_digests.push_back(fc::digest(operation.op));
-         }
-      }
-
-      //empty template method is needed for all other operation types
-      //we can ignore them, we are interested in only proposal_create_operation
       template<class T>
-      void operator()(const T&)
-      {}
-
-      std::vector<fc::sha256> proposed_operations_digests;
-   };
+}
 
 block_id_type  database::get_block_id_for_num( uint32_t block_num )const
 { try {
@@ -103,7 +83,27 @@ std::vector<block_id_type> database::get_block_ids_on_fork(block_id_type head_of
   result.emplace_back(branches.first.back()->previous_id());
   return result;
 }
+//satia
+ struct proposed_operations_digest_accumulator
+   {
+      typedef void result_type;
 
+      void operator()(const graphene::chain::proposal_create_operation& proposal)
+      {
+         for (auto& operation: proposal.proposed_ops)
+         {
+            proposed_operations_digests.push_back(fc::digest(operation.op));
+         }
+      }
+
+      //empty template method is needed for all other operation types
+      //we can ignore them, we are interested in only proposal_create_operation
+   template<class T>
+   void operator()(const T&)
+   {}
+
+   std::vector<fc::sha256> proposed_operations_digests;
+};
 void database::check_transaction_for_duplicated_operations(const signed_transaction& trx)
 {
    const auto& proposal_index = get_index<proposal_object>();

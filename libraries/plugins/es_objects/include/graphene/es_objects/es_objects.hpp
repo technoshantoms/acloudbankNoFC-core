@@ -23,14 +23,14 @@ class es_objects_plugin : public graphene::app::plugin
 
       std::string plugin_name()const override;
       std::string plugin_description()const override;
-      virtual void plugin_set_program_options(
+      void plugin_set_program_options(
          boost::program_options::options_description& cli,
          boost::program_options::options_description& cfg) override;
-      virtual void plugin_initialize(const boost::program_options::variables_map& options) override;
-     virtual void plugin_startup() override;
+      void plugin_initialize(const boost::program_options::variables_map& options) override;
+      void plugin_startup() override;
 
-   friend class detail::es_objects_plugin_impl;
-   std::unique_ptr<detail::es_objects_plugin_impl> my;
+   private:
+      std::unique_ptr<detail::es_objects_plugin_impl> my;
 };
 
 struct adaptor_struct {
