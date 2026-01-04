@@ -33,7 +33,6 @@ bool database::is_known_transaction( const transaction_id_type& id )const
 {
    const auto& trx_idx = get_index_type<transaction_index>().indices().get<by_trx_id>();
    return trx_idx.find( id ) != trx_idx.end();
-      template<class T>
 }
 
 block_id_type  database::get_block_id_for_num( uint32_t block_num )const
