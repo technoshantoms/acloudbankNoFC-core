@@ -263,6 +263,7 @@ namespace graphene { namespace chain {
          const fee_schedule&                    current_fee_schedule()const;
          const account_statistics_object&       get_account_stats_by_owner( account_id_type owner )const;
          std::vector<uint32_t>                  get_seeds( asset_id_type for_asset, uint8_t count_winners )const;
+         uint64_t                               get_random_bits( uint64_t bound );
          const witness_schedule_object&         get_witness_schedule_object()const;
          bool                                   item_locked(const nft_id_type& item)const;
          bool                                   account_role_valid(const account_role_object& aro, account_id_type account, optional<int> op_type = optional<int>()) const;
