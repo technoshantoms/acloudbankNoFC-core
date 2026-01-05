@@ -1,4 +1,5 @@
 #pragma once
+#include <graphene/protocol/offer.hpp>
 
 #include <graphene/chain/types.hpp>
 
@@ -35,12 +36,6 @@ namespace graphene
             offer_id_type get_id() const { return id; }
         };
 
-    enum class result_types
-      {
-         Expired = 0,
-         ExpiredNoBid = 1,
-         Cancelled = 2
-      };
 
         class offer_history_object
             : public graphene::db::abstract_object<offer_history_object>
@@ -117,8 +112,6 @@ MAP_OBJECT_ID_TO_TYPE(graphene::chain::offer_history_object)
 FC_REFLECT_DERIVED(graphene::chain::offer_object, (graphene::db::object),
                    (issuer)(item_ids)(bidder)(bid_price)(minimum_price)(
                        maximum_price)(buying_item)(offer_expiration_date))
-
-FC_REFLECT_ENUM(graphene::protocol::result_types, (Expired)(ExpiredNoBid)(Cancelled));
 
 FC_REFLECT_DERIVED(graphene::chain::offer_history_object,
                    (graphene::db::object),
