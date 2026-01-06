@@ -29,7 +29,6 @@
 #include <fc/io/raw.hpp>
 #include <fc/io/json.hpp>
 #include <fc/crypto/sha256.hpp>
-
 #include <fstream>
 #include <stack>
 
@@ -112,7 +111,7 @@ namespace graphene { namespace db {
          const object&              get( object_id_type id )const
          {
             auto maybe_found = find( id );
-            FC_ASSERT( maybe_found != nullptr, "Unable to find Object ${id}", ("id",id) );
+            FC_ASSERT( maybe_found != nullptr, "Unable to find Object", ("id",id) );
             return *maybe_found;
          }
 
@@ -137,6 +136,10 @@ namespace graphene { namespace db {
          virtual void               object_default( object& obj )const = 0;
    };
 
+   /** @class secondary_index
+    *   @brief A secondary index is intended to observe a primary index.
+    *   A secondary index is not automatically persisted when the node shuts own.
+    */
    class secondary_index
    {
       public:
@@ -184,6 +187,12 @@ namespace graphene { namespace db {
             }
             FC_THROW_EXCEPTION( fc::assert_exception, "invalid index type" );
          }
+        void delete_secondary_index(const secondary_index& secondary) {
+             auto itr = std::find_if(_sindex.begin(), _sindex.end(),
+                                     [&secondary](const auto& ptr) { return &secondary == ptr.get(); });
+             FC_ASSERT(itr != _sindex.end(), "Cannot remove secondary index: secondary index not found");
+             _sindex.erase(itr);
+         }
 
       protected:
          vector< shared_ptr<index_observer> >   _observers;
@@ -202,7 +211,7 @@ namespace graphene { namespace db {
     *  modification throws, subsequent behaviour is undefined! Such exceptions
     *  indicate that this index type is not appropriate for the use-case.
     */
-   template<typename Object, uint8_t chunkbits>
+    template<typename Object, uint8_t chunkbits>
    class direct_index : public secondary_index
    {
       static_assert( chunkbits < 64, "Do you really want arrays with more than 2^63 elements???" );
@@ -210,7 +219,8 @@ namespace graphene { namespace db {
       // private
          static const size_t MAX_HOLE = 100;
          static const size_t _mask = ((1 << chunkbits) - 1);
-         uint64_t next = 0;
+         // satia changed from type uint64_t to size_t ; 
+         size_t next = 0;
          vector< vector< const Object* > > content;
          std::stack< object_id_type > ids_being_modified;
 
@@ -306,14 +316,14 @@ namespace graphene { namespace db {
     *
     *  @see http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern
     */
-   template<typename DerivedIndex, uint8_t DirectBits = 0>
+    template<typename DerivedIndex, uint8_t DirectBits = 0>
    class primary_index  : public DerivedIndex, public base_primary_index
    {
       public:
          typedef typename DerivedIndex::object_type object_type;
 
-         primary_index( object_database& db )
-         :base_primary_index(db),_next_id(object_type::space_id,object_type::type_id,0)
+         primary_index( object_database& db, safety_check_policy& check_policy )
+         : base_primary_index(db),_next_id(object_type::space_id,object_type::type_id,0),_check(check_policy)
          {
             if( DirectBits > 0 )
                _direct_by_id = add_secondary_index< direct_index< object_type, DirectBits > >();
@@ -328,7 +338,7 @@ namespace graphene { namespace db {
          virtual object_id_type get_next_id()const override              { return _next_id;    }
          virtual void           use_next_id()override                    { ++_next_id.number;  }
          virtual void           set_next_id( object_id_type id )override { _next_id = id;      }
-
+         
          /** @return the object with id or nullptr if not found */
          virtual const object*  find( object_id_type id )const override
          {
@@ -336,7 +346,7 @@ namespace graphene { namespace db {
                return _direct_by_id->find( id );
             return DerivedIndex::find( id );
          }
-
+         
          fc::sha256 get_object_version()const
          {
             std::string desc = "1.0";//get_type_description<object_type>();
@@ -355,7 +365,7 @@ namespace graphene { namespace db {
             fc::raw::unpack(ds, open_ver);
             FC_ASSERT( open_ver == get_object_version(), "Incompatible Version, the serialization of objects in this index has changed" );
             vector<char> tmp;
-            while( ds.remaining() > 0 )
+            while( ds.remaining() > 0 ) 
             {
                fc::raw::unpack( ds, tmp );
                load( tmp );
@@ -380,46 +390,78 @@ namespace graphene { namespace db {
          virtual const object&  load( const std::vector<char>& data )override
          {
             const auto& result = DerivedIndex::insert( fc::raw::unpack<object_type>( data ) );
-            for( const auto& item : _sindex )
+            uint8_t type_id = object_type::type_id;
+            for( const auto& item : _sindex ) {
+               _check.pre_secondary_index_notification(type_id, *item);
                item->object_inserted( result );
+               _check.post_secondary_index_notification(type_id, *item);
+            }
             return result;
          }
 
 
          virtual const object&  create(const std::function<void(object&)>& constructor )override
          {
+            uint8_t type_id = object_type::type_id;
+            try {
+            FC_ASSERT(_check.allow_object_creation(_next_id),
+                      "Safety Check: Creation of object ${ID} is not allowed", ("ID", _next_id));
+            } catch(...) {
+               // When debugging a safety check failure, throw a breakpoint here to see where it's coming from
+               throw;
+            }
             const auto& result = DerivedIndex::create( constructor );
-            for( const auto& item : _sindex )
+            for( const auto& item : _sindex ) {
+               _check.pre_secondary_index_notification(type_id, *item);
                item->object_inserted( result );
-            on_add( result );
-            return result;
-         }
-
-         virtual const object& insert( object&& obj ) override
-         {
-            const auto& result = DerivedIndex::insert( std::move( obj ) );
-            for( const auto& item : _sindex )
-               item->object_inserted( result );
+               _check.post_secondary_index_notification(type_id, *item);
+            }
             on_add( result );
             return result;
          }
 
          virtual void  remove( const object& obj ) override
          {
-            for( const auto& item : _sindex )
+            uint8_t type_id = object_type::type_id;
+            try {
+            FC_ASSERT(_check.allow_object_deletion(_next_id), "Safety Check: Deletion of object ${ID} is not allowed",
+                      ("ID", obj.id));
+            } catch(...) {
+               // When debugging a safety check failure, throw a breakpoint here to see where it's coming from
+                throw;
+            }
+            for( const auto& item : _sindex ) {
+               _check.pre_secondary_index_notification(type_id, *item);
                item->object_removed( obj );
+               _check.post_secondary_index_notification(type_id, *item);
+            }
             on_remove(obj);
             DerivedIndex::remove(obj);
          }
 
          virtual void modify( const object& obj, const std::function<void(object&)>& m )override
          {
+            uint8_t type_id = object_type::type_id;
+            try {
+            FC_ASSERT(_check.allow_object_modification(_next_id),
+                      "Safety Check: Modification of object ${ID} is not allowed", ("ID", obj.id));
+            } catch(...) {
+               // When debugging a safety check failure, throw a breakpoint here to see where it's coming from
+                throw;
+            }
+
             save_undo( obj );
-            for( const auto& item : _sindex )
+            for( const auto& item : _sindex ) {
+               _check.pre_secondary_index_notification(type_id, *item);
                item->about_to_modify( obj );
+               _check.post_secondary_index_notification(type_id, *item);
+            }
             DerivedIndex::modify( obj, m );
-            for( const auto& item : _sindex )
+            for( const auto& item : _sindex ) {
+               _check.pre_secondary_index_notification(type_id, *item);
                item->object_modified( obj );
+               _check.post_secondary_index_notification(type_id, *item);
+            }
             on_modify( obj );
          }
 
@@ -449,6 +491,7 @@ namespace graphene { namespace db {
       private:
          object_id_type                                 _next_id;
          const direct_index< object_type, DirectBits >* _direct_by_id = nullptr;
+         safety_check_policy&                           _check;
    };
 
 } } // graphene::db
