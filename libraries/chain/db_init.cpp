@@ -1,7 +1,7 @@
 /*
  * AcloudBank
  */
-
+#include <graphene/protocol/types.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/fba_accumulator_id.hpp>
 
@@ -186,6 +186,7 @@ void database::initialize_evaluators()
 void database::initialize_indexes()
 {
    reset_indexes();
+   //satia enabled me...
    _undo_db.set_max_size( GRAPHENE_MIN_UNDO_HISTORY );
    _check_policy_1 = allocate_object_space<database_lock_safety_check>(protocol_ids);
    _check_policy_2 = allocate_object_space<database_lock_safety_check>(implementation_ids);

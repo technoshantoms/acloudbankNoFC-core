@@ -46,7 +46,7 @@ namespace graphene { namespace chain {
       private:
          bool fee_is_odd;
    };
-   class lottery_asset_create_evaluator : public fee_handling_evaluator<lottery_asset_create_evaluator>
+   class lottery_asset_create_evaluator : public evaluator<lottery_asset_create_evaluator>
    {
       public:
          typedef lottery_asset_create_operation operation_type;

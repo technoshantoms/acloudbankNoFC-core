@@ -85,23 +85,27 @@ fc::variants database_api::get_objects( const vector<object_id_type>& ids, optio
    return my->get_objects( ids, subscribe );
 }
 
-fc::variants database_api_impl::get_objects( const vector<object_id_type>& ids, optional<bool> subscribe )const
-{
-   bool to_subscribe = get_whether_to_subscribe( subscribe );
+fc::variants database_api_impl::get_objects(const vector<object_id_type> &ids) const {
+   if (_subscribe_callback) {
+      for (auto id : ids) {
+         if (id.type() == api_operation_history_object_type && id.space() == api_ids)
+            continue;
+         if (id.type() == api_account_transaction_history_object_type && id.space() == api_ids)
+            continue;
+
+         this->subscribe_to_item(id);
+      }
+   }
 
    fc::variants result;
    result.reserve(ids.size());
 
    std::transform(ids.begin(), ids.end(), std::back_inserter(result),
-                  [this,to_subscribe](object_id_type id) -> fc::variant {
-      if(auto obj = _db.find_object(id))
-      {
-         if( to_subscribe && !id.is<operation_history_id_type>() && !id.is<account_transaction_history_id_type>() )
-            this->subscribe_to_item( id );
-         return obj->to_variant();
-      }
-      return {};
-   });
+                  [this](object_id_type id) -> fc::variant {
+                     if (auto obj = _db.find_object(id))
+                        return obj->to_variant();
+                     return {};
+                  });
 
    return result;
 }

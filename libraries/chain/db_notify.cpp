@@ -712,6 +712,19 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
             case impl_nft_lottery_balance_object_type:
               break;
       }
+   }else if( obj->id.space() == api_ids ) {
+      switch( (api_object_type)obj->id.type() )
+      {
+        case graphene::chain::api_operation_history_object_type: {
+           const auto& aobj = dynamic_cast<const operation_history_object*>(obj);
+           assert( aobj != nullptr );
+           operation_get_impacted_accounts( aobj->op, accounts,
+                                            ignore_custom_operation_required_auths);
+           break;
+        }
+        case api_account_transaction_history_object_type:
+           break;
+      }
    }
 } // end get_relevant_accounts( const object* obj, flat_set<account_id_type>& accounts )
 

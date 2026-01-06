@@ -8,7 +8,7 @@ namespace graphene
    namespace chain
    {
 
-      class offer_evaluator : public fee_handling_evaluator<offer_evaluator>
+      class offer_evaluator : public evaluator<offer_evaluator>
       {
       public:
          typedef offer_operation operation_type;
@@ -17,7 +17,7 @@ namespace graphene
          object_id_type do_apply(const offer_operation &o);
       };
 
-      class bid_evaluator : public fee_handling_evaluator<bid_evaluator>
+      class bid_evaluator : public evaluator<bid_evaluator>
       {
       public:
          typedef bid_operation operation_type;
@@ -26,7 +26,7 @@ namespace graphene
          void_result do_apply(const bid_operation &o);
       };
 
-      class cancel_offer_evaluator : public fee_handling_evaluator<cancel_offer_evaluator>
+      class cancel_offer_evaluator : public evaluator<cancel_offer_evaluator>
       {
       public:
          typedef cancel_offer_operation operation_type;
@@ -35,7 +35,7 @@ namespace graphene
          void_result do_apply(const cancel_offer_operation &o);
       };
 
-      class finalize_offer_evaluator : public fee_handling_evaluator<finalize_offer_evaluator>
+      class finalize_offer_evaluator : public evaluator<finalize_offer_evaluator>
       {
       public:
          typedef finalize_offer_operation operation_type;

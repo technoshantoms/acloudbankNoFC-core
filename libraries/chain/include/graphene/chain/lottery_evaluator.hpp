@@ -28,7 +28,7 @@
 
 namespace graphene { namespace chain {
 
-   class ticket_purchase_evaluator : public fee_handling_evaluator<ticket_purchase_evaluator>
+   class ticket_purchase_evaluator : public evaluator<ticket_purchase_evaluator>
    {
       public:
          typedef ticket_purchase_operation operation_type;
@@ -40,7 +40,7 @@ namespace graphene { namespace chain {
          const asset_dynamic_data_object* asset_dynamic_data;
    };
 
-   class lottery_reward_evaluator : public fee_handling_evaluator<lottery_reward_evaluator>
+   class lottery_reward_evaluator : public evaluator<lottery_reward_evaluator>
    {
       public:
          typedef lottery_reward_operation operation_type;
@@ -52,7 +52,7 @@ namespace graphene { namespace chain {
          const asset_dynamic_data_object* asset_dynamic_data;
    };
 
-   class lottery_end_evaluator : public fee_handling_evaluator<lottery_end_evaluator>
+   class lottery_end_evaluator : public evaluator<lottery_end_evaluator>
    {
       public:
          typedef lottery_end_operation operation_type;
@@ -64,7 +64,7 @@ namespace graphene { namespace chain {
          const asset_dynamic_data_object* asset_dynamic_data;
    };
    
-   class sweeps_vesting_claim_evaluator : public fee_handling_evaluator<sweeps_vesting_claim_evaluator>
+   class sweeps_vesting_claim_evaluator : public evaluator<sweeps_vesting_claim_evaluator>
    {
       public:
          typedef sweeps_vesting_claim_operation operation_type;

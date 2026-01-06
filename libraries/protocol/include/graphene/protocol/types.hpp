@@ -238,7 +238,8 @@ const static uint16_t UIA_VALID_FLAGS_MASK = UIA_ASSET_ISSUER_PERMISSION_MASK;
 enum reserved_spaces {
     relative_protocol_ids = 0,
     protocol_ids          = 1,
-    implementation_ids    = 2
+    implementation_ids    = 2,
+    api_ids               = 3 ///< Non-consensus objects used for API. Tracked by respective plugins.
 };
 
 inline bool is_relative(object_id_type o) { return o.space() == 0; }

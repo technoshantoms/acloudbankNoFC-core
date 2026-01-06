@@ -48,7 +48,7 @@ namespace graphene { namespace chain {
    class operation_history_object : public abstract_object<operation_history_object>
    {
       public:
-         static constexpr uint8_t space_id = protocol_ids;
+         static constexpr uint8_t space_id = api_ids;
          static constexpr uint8_t type_id  = operation_history_object_type;
 
          operation_history_object( const operation& o ):op(o){}
@@ -90,7 +90,7 @@ namespace graphene { namespace chain {
    class account_transaction_history_object :  public abstract_object<account_transaction_history_object>
    {
       public:
-         static constexpr uint8_t space_id = implementation_ids;
+         static constexpr uint8_t space_id = api_ids;
          static constexpr uint8_t type_id  = impl_account_transaction_history_object_type;
          account_id_type                      account; /// the account this operation applies to
          operation_history_id_type            operation_id;
