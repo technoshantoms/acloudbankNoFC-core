@@ -299,7 +299,7 @@ namespace graphene { namespace chain {
          void initialize_indexes();
          void init_genesis(const genesis_state_type& genesis_state = genesis_state_type());
 
-         template<typename EvaluatorType>
+           template<typename EvaluatorType>
          void register_evaluator()
          {
             _operation_evaluators[operation::tag<typename EvaluatorType::operation_type>::value]

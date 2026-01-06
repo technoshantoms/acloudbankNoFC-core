@@ -8,7 +8,6 @@ namespace graphene
 {
 namespace chain
 {
-
 class create_custom_permission_evaluator : public fee_handling_evaluator<create_custom_permission_evaluator>
 {
 public:

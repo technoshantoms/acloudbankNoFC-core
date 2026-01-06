@@ -6,6 +6,7 @@
 #include <graphene/chain/fba_accumulator_id.hpp>
 
 #include <graphene/chain/account_object.hpp>
+#include <graphene/chain/account_role_evaluator.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/account_role_object.hpp>
 #include <graphene/chain/balance_object.hpp>
@@ -172,14 +173,14 @@ void database::initialize_evaluators()
    register_evaluator<account_role_create_evaluator>();
    register_evaluator<account_role_update_evaluator>();
    register_evaluator<account_role_delete_evaluator>();
-   register_consensus_evaluator<lottery_asset_create_evaluator>();
+   register_evaluator<lottery_asset_create_evaluator>();
    register_evaluator<nft_lottery_token_purchase_evaluator>();
    register_evaluator<nft_lottery_reward_evaluator>();
    register_evaluator<nft_lottery_end_evaluator>();
-   register_consensus_evaluator<ticket_purchase_evaluator>(); //satia
-   register_consensus_evaluator<lottery_reward_evaluator>();
-   register_consensus_evaluator<lottery_end_evaluator>();
-   register_consensus_evaluator<sweeps_vesting_claim_evaluator>();
+   register_evaluator<ticket_purchase_evaluator>(); //satia
+   register_evaluator<lottery_reward_evaluator>();
+   register_evaluator<lottery_end_evaluator>();
+   register_evaluator<sweeps_vesting_claim_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -588,7 +589,7 @@ void database::init_genesis(const genesis_state_type& genesis_state)
    }
 
     // Create balances for all bts accounts
-   for( const auto& account : genesis_state.initial_bts_accounts ) {
+   for( const auto& account : genesis_state.initial_accounts ) {
       if (account.core_balance != share_type()) {
          total_supplies[asset_id_type()] += account.core_balance;
 
