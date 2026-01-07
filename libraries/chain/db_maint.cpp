@@ -3,14 +3,14 @@
  *
  */
 #include <graphene/protocol/chain_parameters.hpp>
-#include <fc/uint128.hpp>
+#include <graphene/chain/custom_account_authority_object.hpp>
+#include <graphene/chain/account_role_object.hpp>
 
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/fba_accumulator_id.hpp>
 #include <graphene/chain/hardfork.hpp>
 
 #include <graphene/chain/account_object.hpp>
-#include <graphene/chain/account_role_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/balance_object.hpp>
 #include <graphene/chain/budget_record_object.hpp>
@@ -26,7 +26,8 @@
 #include <graphene/chain/witness_object.hpp>
 #include <graphene/chain/worker_object.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
-#include <graphene/chain/custom_account_authority_object.hpp>
+
+#include <fc/uint128.hpp>
 
 namespace graphene { namespace chain {
 
@@ -852,8 +853,7 @@ void database::process_bitassets()
 
    const auto update_bitasset = [this,head_time,head_epoch_seconds]( asset_bitasset_data_object &o )
    {
-      o.force_settled_volume = 0;
-       // Reset all BitAsset force settlement volumes to zero
+      o.force_settled_volume = 0; // Reset all BitAsset force settlement volumes to zero
 
       // clear expired feeds
       const auto &asset = get( o.asset_id );
@@ -880,7 +880,6 @@ void database::process_bitassets()
    }
 }
 
-
 void update_median_feeds(database& db)
 {
    time_point_sec head_time = db.head_block_time();
@@ -896,7 +895,6 @@ void update_median_feeds(database& db)
       db.modify( d, update_bitasset );
    }
 }
-
 void clear_expired_custom_account_authorities(database& db)
 {
    const auto& cindex = db.get_index_type<custom_account_authority_index>().indices().get<by_expiration>();
@@ -914,6 +912,7 @@ void clear_expired_account_roles(database& db)
       db.remove(*arindex.begin());
    }
 }
+
 /**
  * @brief Remove any custom active authorities whose expiration dates are in the past
  * @param db A mutable database reference
@@ -1000,7 +999,7 @@ namespace detail {
 }
 
 void database::perform_chain_maintenance(const signed_block& next_block, const global_property_object& global_props)
-{
+{ try {
    const auto& gpo = get_global_properties();
    const auto& dgpo = get_dynamic_global_properties();
 
@@ -1213,18 +1212,16 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       {
          p.parameters = std::move(*p.pending_parameters);
          p.pending_parameters.reset();
-
-         if( !p.pending_parameters->extensionss.value.rbac_max_permissions_per_account.valid() )
+      if( !p.pending_parameters->extensionss.value.rbac_max_permissions_per_account.valid() )
             p.pending_parameters->extensionss.value.rbac_max_permissions_per_account = p.parameters.extensionss.value.rbac_max_permissions_per_account;
-         if( !p.pending_parameters->extensionss.value.rbac_max_account_authority_lifetime.valid() )
+      if( !p.pending_parameters->extensionss.value.rbac_max_account_authority_lifetime.valid() )
             p.pending_parameters->extensionss.value.rbac_max_account_authority_lifetime = p.parameters.extensionss.value.rbac_max_account_authority_lifetime;
-         if( !p.pending_parameters->extensionss.value.rbac_max_authorities_per_permission.valid() )
+      if( !p.pending_parameters->extensionss.value.rbac_max_authorities_per_permission.valid() )
             p.pending_parameters->extensionss.value.rbac_max_authorities_per_permission = p.parameters.extensionss.value.rbac_max_authorities_per_permission;
-         if( !p.pending_parameters->extensionss.value.account_roles_max_per_account.valid() )
+      if( !p.pending_parameters->extensionss.value.account_roles_max_per_account.valid() )
             p.pending_parameters->extensionss.value.account_roles_max_per_account = p.parameters.extensionss.value.account_roles_max_per_account;
-         if( !p.pending_parameters->extensionss.value.account_roles_max_lifetime.valid() )
+      if( !p.pending_parameters->extensionss.value.account_roles_max_lifetime.valid() )
             p.pending_parameters->extensionss.value.account_roles_max_lifetime = p.parameters.extensionss.value.account_roles_max_lifetime;
-
       }
    });
 
@@ -1269,13 +1266,27 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
    // process_budget needs to run at the bottom because
    //   it needs to know the next_maintenance_time
    process_budget();
+   // Reset all BitAsset force settlement volumes to zero
+   //for( const asset_bitasset_data_object* d : get_index_type<asset_bitasset_data_index>() )
+   for( const auto& d : get_index_type<asset_bitasset_data_index>().indices() )
+      modify( d, [](asset_bitasset_data_object& o) { o.force_settled_volume = 0; });
+   // Ideally we have to do this after every block but that leads to longer block applicaiton/replay times.
+   // So keep it here as it is not critical. valid_to check ensures
+   // these custom account auths and account roles are not usable.
+   clear_expired_custom_account_authorities(*this);
+   clear_expired_account_roles(*this);
+   // process_budget needs to run at the bottom because
+   //   it needs to know the next_maintenance_time
+   process_budget();
 
    for (vector<account_id_type>& at: _cm_support_worker_buffer)
    {
       at.clear();
    }
    _cm_support_worker_buffer.clear();
-}
+
+} FC_CAPTURE_AND_RETHROW() }
+
 
 void database::maintenance_prng::seed(uint64_t seed)
 {
@@ -1307,12 +1318,5 @@ uint64_t database::get_maintenance_seed() const
 {
    return _maintenance_prng.get_seed();
 }
-
-// Ideally we have to do this after every block but that leads to longer block applicaiton/replay times.
-   // So keep it here as it is not critical. valid_to check ensures
-   // these custom account auths and account roles are not usable.
-   clear_expired_custom_account_authorities(*this);
-   clear_expired_account_roles(*this);
-
-
-} }
+} //Chain namespace
+}//graphene namespace
