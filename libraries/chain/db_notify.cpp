@@ -483,10 +483,6 @@ struct get_impacted_account_visitor
    void operator()( const nft_lottery_reward_operation& op ) {
       _impacted.insert( op.winner );
    }
-   void operator()( const nft_lottery_end_operation& op ) {}
-   void operator()( const son_create_operation& op ) {
-      _impacted.insert( op.owner_account );
-   }
     void operator()( const random_number_store_operation& op ){
       _impacted.insert( op.account );
    }
@@ -722,11 +718,6 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
               accounts.insert(aobj->issuer);
               if (aobj->bidder.valid())
                   accounts.insert(*aobj->bidder);
-              break;
-           }case api_account_transaction_history_object_type: {
-              const auto& aobj = dynamic_cast<const account_transaction_history_object*>(obj);
-              FC_ASSERT( aobj != nullptr );
-              accounts.insert( aobj->account );
               break;
            } case impl_chain_property_object_type:
               break;
