@@ -4,6 +4,10 @@
 #include <graphene/protocol/operations.hpp>
 #include <graphene/protocol/transaction.hpp>
 #include <graphene/protocol/tnt/validation.hpp>
+#include <graphene/chain/random_number_object.hpp>
+#include <graphene/chain/asset_object.hpp>
+
+#include <graphene/chain/database.hpp>
 
 #include <graphene/chain/custom_permission_object.hpp>
 #include <graphene/chain/offer_object.hpp>
@@ -25,13 +29,13 @@
 
 #include <graphene/chain/tnt/object.hpp>
 #include <graphene/chain/ticket_object.hpp>
+#include <graphene/chain/account_object.hpp>
 #include <graphene/chain/impacted.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/personal_data_object.hpp>
 #include <graphene/chain/content_card_object.hpp>
 #include <graphene/chain/permission_object.hpp>
 #include <graphene/chain/commit_reveal_object.hpp>
-#include <graphene/chain/account_object.hpp>
 
 using namespace fc;
 namespace graphene { namespace chain { namespace detail {
@@ -392,7 +396,6 @@ struct get_impacted_account_visitor
       _impacted.insert( op.fee_payer() );
       _impacted.insert( op.account );
    }
-
     void operator()( const lottery_reward_operation& op ) {
       _impacted.insert( op.winner );
    }
@@ -502,7 +505,12 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
            FC_ASSERT( aobj != nullptr );
            accounts.insert( aobj->issuer );
            break;
-        } case force_settlement_object_type:{
+        }case random_number_object_type:{
+           const auto& aobj = dynamic_cast<const random_number_object_type*>(obj);
+           assert( aobj != nullptr );
+           accounts.insert( aobj->account );
+           break;
+       }case force_settlement_object_type:{
            const auto& aobj = dynamic_cast<const force_settlement_object*>(obj);
            FC_ASSERT( aobj != nullptr );
            accounts.insert( aobj->owner );
@@ -563,48 +571,7 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
         } case ico_balance_object_type:{
            /** these are free from any accounts */
            break;
-        }case custom_account_authority_object_type:
-           break;
-         }case offer_object_type:{
-           auto aobj = dynamic_cast<const offer_object*>(obj);
-           assert(aobj != nullptr);
-           accounts.insert(aobj->issuer);
-           if (aobj->bidder.valid())
-               accounts.insert(*aobj->bidder);
-           break;
-         }case nft_object_type:{
-           auto aobj = dynamic_cast<const nft_object*>(obj);
-           assert(aobj != nullptr);
-           accounts.insert(aobj->owner);
-           accounts.insert(aobj->approved);
-           accounts.insert(aobj->approved_operators.begin(), aobj->approved_operators.end());
-           break;
-        }case account_role_object_type:{
-           const auto& aobj = dynamic_cast<const account_role_object*>(obj);
-           assert( aobj != nullptr );
-           accounts.insert( aobj->owner );
-           accounts.insert( aobj->whitelisted_accounts.begin(), aobj->whitelisted_accounts.end() );
-           break;
-        }case custom_permission_object_type:{
-           auto aobj = dynamic_cast<const custom_permission_object*>(obj);
-           assert(aobj != nullptr);
-           accounts.insert(aobj->account);
-           add_authority_accounts(accounts, aobj->auth);
-           break;
-        } 
-         case impl_offer_history_object_type:{
-              const auto& aobj = dynamic_cast<const offer_history_object*>(obj);
-              assert( aobj != nullptr );
-              accounts.insert(aobj->issuer);
-              if (aobj->bidder.valid())
-                  accounts.insert(*aobj->bidder);
-              break;
-         }case impl_sweeps_vesting_balance_object_type:{
-              const auto& aobj = dynamic_cast<const sweeps_vesting_balance_object*>(obj);
-              assert( aobj != nullptr );
-              accounts.insert(aobj->owner);
-              break;
-       }case htlc_object_type:{
+        } case htlc_object_type:{
               const auto& htlc_obj = dynamic_cast<const htlc_object*>(obj);
               FC_ASSERT( htlc_obj != nullptr );
               accounts.insert( htlc_obj->transfer.from );
@@ -649,6 +616,41 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
               graphene::protocol::tnt::tank_validator val(tank_obj->schematic, 0);
               val.get_referenced_accounts(accounts);
               break;
+       }case custom_permission_object_type:{
+           auto aobj = dynamic_cast<const custom_permission_object*>(obj);
+           assert(aobj != nullptr);
+           accounts.insert(aobj->account);
+           add_authority_accounts(accounts, aobj->auth);
+           break;
+        } case custom_account_authority_object_type:
+           break;
+          case offer_object_type:{
+           auto aobj = dynamic_cast<const offer_object*>(obj);
+           assert(aobj != nullptr);
+           accounts.insert(aobj->issuer);
+           if (aobj->bidder.valid())
+               accounts.insert(*aobj->bidder);
+           break;
+        } case nft_metadata_object_type:{
+           auto aobj = dynamic_cast<const nft_metadata_object*>(obj);
+           assert(aobj != nullptr);
+           accounts.insert(aobj->owner);
+           if (aobj->revenue_partner.valid())
+               accounts.insert(*aobj->revenue_partner);
+           break;
+        } case nft_object_type:{
+           auto aobj = dynamic_cast<const nft_object*>(obj);
+           assert(aobj != nullptr);
+           accounts.insert(aobj->owner);
+           accounts.insert(aobj->approved);
+           accounts.insert(aobj->approved_operators.begin(), aobj->approved_operators.end());
+           break;
+        } case account_role_object_type:{
+           const auto& aobj = dynamic_cast<const account_role_object*>(obj);
+           assert( aobj != nullptr );
+           accounts.insert( aobj->owner );
+           accounts.insert( aobj->whitelisted_accounts.begin(), aobj->whitelisted_accounts.end() );
+           break;
         }
       }
    }
@@ -684,7 +686,21 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
               break;
            } case impl_block_summary_object_type:
               break;
-             case impl_account_transaction_history_object_type: {
+              case impl_lottery_balance_object_type:
+              break;
+             case impl_sweeps_vesting_balance_object_type:{
+              const auto& aobj = dynamic_cast<const sweeps_vesting_balance_object*>(obj);
+              assert( aobj != nullptr );
+              accounts.insert(aobj->owner);
+              break;
+           } case impl_offer_history_object_type:{
+              const auto& aobj = dynamic_cast<const offer_history_object*>(obj);
+              assert( aobj != nullptr );
+              accounts.insert(aobj->issuer);
+              if (aobj->bidder.valid())
+                  accounts.insert(*aobj->bidder);
+              break;
+           }case impl_account_transaction_history_object_type: {
               const auto& aobj = dynamic_cast<const account_transaction_history_object*>(obj);
               FC_ASSERT( aobj != nullptr );
               accounts.insert( aobj->account );
@@ -704,19 +720,6 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
             case impl_nft_lottery_balance_object_type:
               break;
       }
-   }else if( obj->id.space() == api_ids ) {
-      switch( (api_object_type)obj->id.type() )
-      {
-        case graphene::chain::api_operation_history_object_type: {
-           const auto& aobj = dynamic_cast<const operation_history_object*>(obj);
-           assert( aobj != nullptr );
-           operation_get_impacted_accounts( aobj->op, accounts,
-                                            ignore_custom_operation_required_auths);
-           break;
-        }
-        case api_account_transaction_history_object_type:
-           break;
-      }
    }
 } // end get_relevant_accounts( const object* obj, flat_set<account_id_type>& accounts )
 
@@ -735,6 +738,7 @@ void database::notify_changed_objects()
    if( _undo_db.enabled() ) 
    {
       const auto& head_undo = _undo_db.head();
+      auto chain_time = head_block_time();
 
       // New
       if( !new_objects.empty() )
@@ -746,7 +750,8 @@ void database::notify_changed_objects()
           new_ids.push_back(item);
           auto obj = find_object(item);
           if(obj != nullptr)
-            get_relevant_accounts(obj, new_accounts_impacted, false);
+            get_relevant_accounts(obj, new_accounts_impacted, false );
+
         }
 
         if( new_ids.size() )
@@ -761,7 +766,7 @@ void database::notify_changed_objects()
         for( const auto& item : head_undo.old_values )
         {
           changed_ids.push_back(item.first);
-          get_relevant_accounts(item.second.get(), changed_accounts_impacted, false);
+          get_relevant_accounts(item.second.get(), changed_accounts_impacted, false );
         }
 
         if( changed_ids.size() )
