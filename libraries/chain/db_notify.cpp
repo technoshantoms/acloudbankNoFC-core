@@ -563,13 +563,15 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
            transaction_get_impacted_accounts( aobj->proposed_transaction, accounts,
                                               ignore_custom_operation_required_auths );
            break;
-        } case operation_history_object_type:{
+        } 
+     /*case operation_history_object_type:{
            const auto& aobj = dynamic_cast<const operation_history_object*>(obj);
            FC_ASSERT( aobj != nullptr );
            operation_get_impacted_accounts( aobj->op, accounts,
                                             ignore_custom_operation_required_auths );
            break;
-        } case withdraw_permission_object_type:{
+        }*/
+     case withdraw_permission_object_type:{
            const auto& aobj = dynamic_cast<const withdraw_permission_object*>(obj);
            FC_ASSERT( aobj != nullptr );
            accounts.insert( aobj->withdraw_from_account );
@@ -721,7 +723,7 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
               if (aobj->bidder.valid())
                   accounts.insert(*aobj->bidder);
               break;
-           }case impl_account_transaction_history_object_type: {
+           }case api_account_transaction_history_object_type: {
               const auto& aobj = dynamic_cast<const account_transaction_history_object*>(obj);
               FC_ASSERT( aobj != nullptr );
               accounts.insert( aobj->account );
@@ -772,7 +774,7 @@ void database::notify_changed_objects()
    if( _undo_db.enabled() ) 
    {
       const auto& head_undo = _undo_db.head();
-      auto chain_time = head_block_time();
+     // auto chain_time = head_block_time();
 
       // New
       if( !new_objects.empty() )
