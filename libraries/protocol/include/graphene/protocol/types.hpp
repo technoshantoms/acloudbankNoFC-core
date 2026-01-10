@@ -314,7 +314,7 @@ GRAPHENE_DEFINE_IDS(protocol, protocol_ids, /*protocol objects are not prefixed*
                     /* 1.8.x  */ (call_order)
                     /* 1.9.x  */ (custom) // unused
                     /* 1.10.x */ (proposal)
-                    /* 1.11.x */ (operation_history) // strictly speaking it is not in protocol
+                    /* 1.11.x */ (reserved0/*operation_history, moved to api_ids*/)
                     /* 1.12.x */ (withdraw_permission)
                     /* 1.13.x */ (vesting_balance)
                     /* 1.14.x */ (worker)

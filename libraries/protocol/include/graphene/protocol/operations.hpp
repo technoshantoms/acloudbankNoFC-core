@@ -28,7 +28,8 @@
 
 #include <graphene/protocol/nft_lottery.hpp>
 #include <graphene/protocol/lottery_ops.hpp>
-
+//refferal payout
+//#include <graphene/protocol/affiliate.hpp>
 //nft
 #include <graphene/protocol/custom_permission.hpp>
 #include <graphene/protocol/custom_account_authority.hpp>
@@ -144,7 +145,8 @@ namespace graphene { namespace protocol {
              /* 96 */ nft_lottery_token_purchase_operation,
              /* 97 */ nft_lottery_reward_operation,
              /* 98 */ nft_lottery_end_operation,
-             /* 99 */random_number_store_operation
+             ///* 99 */affiliate_referral_payout_operation, // VIRTUAL
+             /* 100 */ random_number_store_operation
          > operation;
 
    /// @} // operations group
