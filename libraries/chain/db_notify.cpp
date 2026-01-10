@@ -1,5 +1,5 @@
 #include <fc/container/flat.hpp>
-
+#include <graphene/protocol/random_number.hpp>
 #include <graphene/protocol/authority.hpp>
 #include <graphene/protocol/operations.hpp>
 #include <graphene/protocol/transaction.hpp>
