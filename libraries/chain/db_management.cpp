@@ -43,11 +43,9 @@
 
 namespace graphene { namespace chain {
 
-database::database(bool allow_testing_edits) :
+database::database() :
    _random_number_generator(fc::ripemd160().data())
 {
-   if (allow_testing_edits)
-      elog("UNIT TESTING MODE ENABLED -- NOT FOR PRODUCTION USE");
    initialize_indexes();
    initialize_evaluators();
 }

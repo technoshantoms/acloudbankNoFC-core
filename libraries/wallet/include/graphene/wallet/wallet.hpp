@@ -10,6 +10,12 @@
 #include <graphene/utilities/key_conversion.hpp>
 #include "wallet_structs.hpp"
 
+using namespace graphene::app;
+using namespace graphene::chain;
+using namespace graphene::utilities;
+using namespace graphene::bookie;
+using namespace std;
+
 namespace fc
 {
    void to_variant( const account_multi_index_type& accts, variant& vo, uint32_t max_depth );
@@ -18,17 +24,38 @@ namespace fc
 
 namespace graphene { namespace wallet {
 
+
+typedef uint16_t transaction_handle_type;
+
 /**
  * This class takes a variant and turns it into an object
  * of the given type, with the new operator.
  */
 object* create_object( const fc::variant& v );
 
+// satia .. fix me later !!
+
 enum authority_type
 {
    owner,
    active
 };
+
+struct key_label
+{
+   string            label;
+   public_key_type   key;
+};
+
+struct by_label;
+struct by_key;
+typedef multi_index_container<
+   key_label,
+   indexed_by<
+      ordered_unique< tag<by_label>, member< key_label, string, &key_label::label > >,
+      ordered_unique< tag<by_key>, member< key_label, public_key_type, &key_label::key > >
+   >
+> key_label_index_type;
 
 /**
  * This wallet assumes it is connected to the database server with a high-bandwidth, low-latency connection and
@@ -1517,6 +1544,32 @@ class wallet_api
          bool broadcast /* = false */
          );
 
+       /** Get random numbers
+       * @brief Returns the random number
+       * @param minimum Lower bound of segment containing random number
+       * @param maximum Upper bound of segment containing random number
+       * @param selections Number of random numbers to return
+       * @param duplicates Allow duplicated numbers
+       * @param broadcast true if you wish to broadcast the transaction
+       * @return the signed version of the transaction
+       * @return Vector containing random numbers from segment [minimum, maximum)
+       */
+      vector<uint64_t> get_random_number_ex(string account,
+                                            uint64_t minimum,
+                                            uint64_t maximum,
+                                            uint64_t selections,
+                                            bool duplicates,
+                                            bool broadcast);
+
+      /** Get random number
+       * @brief Returns the random number
+       * @param bound Upper bound of segment containing random number
+       * @return Random number from segment [0, bound)
+       */
+      uint64_t get_random_number(string account,
+                                 uint64_t bound,
+                                 bool broadcast);
+
       /**
        * Returns the order book for the market base:quote.
        * @param base symbol or ID of the base asset
@@ -2051,6 +2104,8 @@ class wallet_api
 
 extern template class fc::api<graphene::wallet::wallet_api>;
 
+FC_REFLECT_ENUM( graphene::wallet::authority_type, (owner)(active) )
+
 FC_API( graphene::wallet::wallet_api,
         (help)
         (gethelp)
@@ -2120,7 +2175,7 @@ FC_API( graphene::wallet::wallet_api,
         (htlc_redeem)
         (htlc_extend)
         (get_vesting_balances)
-         (nft_metadata_create)
+        (nft_metadata_create)
         (nft_metadata_update)
         (nft_create)
         (nft_get_balance)
@@ -2185,6 +2240,8 @@ FC_API( graphene::wallet::wallet_api,
         (propose_parameter_change)
         (propose_fee_change)
         (approve_proposal)
+        (get_random_number_ex)
+        (get_random_number)
         (dbg_make_uia)
         (dbg_make_mia)
         (dbg_push_blocks)

@@ -39,6 +39,7 @@
 #include <graphene/chain/custom_account_authority_object.hpp>
 #include <graphene/chain/offer_object.hpp>
 #include <graphene/chain/nft_object.hpp>
+#include <graphene/chain/random_number_evaluator.hpp>
 //NFT 
 #include <graphene/chain/custom_permission_evaluator.hpp>
 #include <graphene/chain/custom_account_authority_evaluator.hpp>
@@ -181,6 +182,7 @@ void database::initialize_evaluators()
    register_evaluator<lottery_reward_evaluator>();
    register_evaluator<lottery_end_evaluator>();
    register_evaluator<sweeps_vesting_claim_evaluator>();
+   register_evaluator<random_number_store_evaluator>();
 }
 
 void database::initialize_indexes()

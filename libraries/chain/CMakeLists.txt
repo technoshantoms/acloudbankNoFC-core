@@ -89,6 +89,9 @@ add_library( graphene_chain
              permission_evaluator.cpp
              commit_reveal_object.cpp
              commit_reveal_evaluator.cpp
+
+             random_number_evaluator.cpp
+             
              ${HEADERS}
              "${CMAKE_CURRENT_BINARY_DIR}/include/graphene/chain/hardfork.hpp"
            )

@@ -61,6 +61,7 @@
 #include <fc/thread/scoped_lock.hpp>
 #include <fc/crypto/base58.hpp>
 #include <fc/crypto/aes.hpp>
+#include <fc/crypto/rand.hpp>
 
 #include <graphene/app/api.hpp>
 #include <graphene/app/util.hpp>
@@ -1203,7 +1204,54 @@ signed_transaction create_custom_permission(string owner,
    {
       return _remote_db->get_active_custom_account_authorities_by_operation(get_account(owner).id, operation_type);
    }
+ vector<uint64_t> wallet_api::get_random_number_ex(string account,
+                                                  uint64_t minimum,
+                                                  uint64_t maximum,
+                                                  uint64_t selections,
+                                                  bool duplicates,
+                                                  bool broadcast)
+{
+   return my->get_random_number_ex( account, minimum, maximum, selections, duplicates, broadcast );
+}
 
+uint64_t wallet_api::get_random_number(string account,
+                                       uint64_t bound,
+                                       bool broadcast)
+{
+   return my->get_random_number( account, bound, broadcast );
+}
+
+  vector<uint64_t> get_random_number_ex(string account,
+                                         uint64_t minimum,
+                                         uint64_t maximum,
+                                         uint64_t selections,
+                                         bool duplicates,
+                                         bool broadcast)
+   {
+
+      vector<uint64_t> v = _remote_db->get_random_number_ex(minimum, maximum, selections, duplicates);
+
+      random_number_store_operation op;
+      op.account = get_account(account).id;
+      op.random_number = v;
+      op.data = "";
+
+      signed_transaction trx;
+      trx.operations.push_back(op);
+      set_operation_fees( trx, _remote_db->get_global_properties().parameters.current_fees );
+      trx.validate();
+      sign_transaction( trx, broadcast );
+
+      return v;
+   }
+
+   uint64_t get_random_number(string account,
+                              uint64_t bound,
+                              bool broadcast)
+   {
+      vector<uint64_t> v = get_random_number_ex(account, 0, bound, 1, false, broadcast);
+      return v.at(0);
+   }
 
 signed_transaction wallet_api::nft_metadata_create(string owner_account_id_or_name,
                                                    string name,

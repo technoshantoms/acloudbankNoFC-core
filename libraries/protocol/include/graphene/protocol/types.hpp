@@ -303,7 +303,7 @@ void from_variant( const fc::variant& var, std::shared_ptr<const graphene::proto
 
 /// Object types in the Protocol Space (enum object_type (1.x.x))
 GRAPHENE_DEFINE_IDS(protocol, protocol_ids, /*protocol objects are not prefixed*/,
-                     /* 1.0.x  */ (null) // no data
+                    /* 1.0.x  */ (null) // no data
                     /* 1.1.x  */ (base) // no data
                     /* 1.2.x  */ (account)
                     /* 1.3.x  */ (asset)

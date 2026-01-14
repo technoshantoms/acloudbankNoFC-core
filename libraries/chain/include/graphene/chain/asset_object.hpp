@@ -39,6 +39,7 @@
  */
 
 namespace graphene { namespace chain {
+   class account_object;
    class asset_bitasset_data_object;
    class database;
    using namespace graphene::db;
