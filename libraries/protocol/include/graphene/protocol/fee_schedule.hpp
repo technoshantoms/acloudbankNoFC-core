@@ -31,7 +31,7 @@ namespace graphene { namespace protocol {
    template<typename ...T>
    struct transform_to_fee_parameters<fc::static_variant<T...>>
    {
-      using type = fc::static_variant< typename T::fee_parameters_type... >;
+      typedef fc::static_variant< typename T::fee_parameters_type... > type;
    };
    using fee_parameters = transform_to_fee_parameters<operation>::type;
 

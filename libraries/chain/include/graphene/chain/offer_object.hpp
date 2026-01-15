@@ -19,8 +19,8 @@ namespace graphene
         class offer_object : public graphene::db::abstract_object<offer_object>
         {
         public:
-            static const uint8_t space_id = protocol_ids;
-            static const uint8_t type_id = offer_object_type;
+            static constexpr uint8_t space_id = protocol_ids;
+            static constexpr uint8_t type_id = offer_object_type;
 
             account_id_type issuer;
 

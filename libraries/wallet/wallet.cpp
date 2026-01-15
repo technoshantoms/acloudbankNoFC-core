@@ -85,7 +85,6 @@
                                 // If this number is set too low, then for large value
                                 // commitments the length of the range proof will hint
                                 // strongly at the value amount that is being hidden.
-
 namespace graphene { namespace wallet {
    using fc::optional;
 
@@ -100,24 +99,6 @@ namespace graphene { namespace wallet {
 
       return fc::sha256::hash( to_sign.str() );
    }
-
-   string address_to_shorthash( const address& addr )
-{
-   uint32_t x = addr.addr._hash[0].value();
-   static const char hd[] = "0123456789abcdef";
-   string result;
-
-   result += hd[(x >> 0x1c) & 0x0f];
-   result += hd[(x >> 0x18) & 0x0f];
-   result += hd[(x >> 0x14) & 0x0f];
-   result += hd[(x >> 0x10) & 0x0f];
-   result += hd[(x >> 0x0c) & 0x0f];
-   result += hd[(x >> 0x08) & 0x0f];
-   result += hd[(x >> 0x04) & 0x0f];
-   result += hd[(x        ) & 0x0f];
-
-   return result;
-}
    vector<brain_key_info> utility::derive_owner_keys_from_brain_key(string brain_key, int number_of_desired_keys)
    {
       // Safety-check
@@ -806,6 +787,60 @@ signed_transaction wallet_api::create_asset(string issuer,
 {
    return my->create_asset(issuer, symbol, precision, common, bitasset_opts, broadcast);
 }
+  signed_transaction create_lottery(string issuer,
+      string symbol,
+      asset_options common,
+      lottery_asset_options lottery_opts,
+      bool broadcast = false)
+   { try {
+      account_object issuer_account = get_account( issuer );
+      FC_ASSERT(!find_asset(symbol).valid(), "Asset with that symbol already exists!");
+
+      lottery_asset_create_operation create_op;
+      create_op.issuer = issuer_account.id;
+      create_op.symbol = symbol;
+      create_op.precision = 0;
+      create_op.common_options = common;
+
+      create_op.extensions = lottery_opts;
+
+      signed_transaction tx;
+      tx.operations.push_back( create_op );
+      set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
+      tx.validate();
+
+      return sign_transaction( tx, broadcast );
+   } FC_CAPTURE_AND_RETHROW( (issuer)(symbol)(common)(broadcast) ) }
+
+   signed_transaction wallet_api::create_lottery(string issuer,
+      string symbol,
+      asset_options common,
+      lottery_asset_options lottery_opts,
+      bool broadcast)
+
+   {
+      return my->create_lottery(issuer, symbol, common, lottery_opts, broadcast);
+   }
+
+   signed_transaction buy_ticket( asset_id_type lottery, account_id_type buyer, uint64_t tickets_to_buy )
+   { try {
+      auto asset_obj = get_asset( lottery );
+      FC_ASSERT( asset_obj.is_lottery() );
+
+      ticket_purchase_operation top;
+      top.lottery = lottery;
+      top.buyer = buyer;
+      top.tickets_to_buy = tickets_to_buy;
+      top.amount = asset( asset_obj.lottery_options->ticket_price.amount * tickets_to_buy, asset_obj.lottery_options->ticket_price.asset_id );
+
+      signed_transaction tx;
+      tx.operations.push_back( top );
+      set_operation_fees( tx, _remote_db->get_global_properties().parameters.current_fees);
+      tx.validate();
+
+      return sign_transaction( tx, true );
+   } FC_CAPTURE_AND_RETHROW( (lottery)(tickets_to_buy) ) }
+
 
 signed_transaction wallet_api::update_asset(string symbol,
                                             optional<string> new_issuer,
@@ -1533,20 +1568,11 @@ vector<nft_metadata_object> wallet_api::nft_get_metadata_by_owner(account_id_typ
    return my->_remote_db->nft_get_metadata_by_owner(owner, lb_id, limit);
 }
 
-signed_transaction wallet_api::nft_lottery_buy_ticket( nft_metadata_id_type lottery, account_id_type buyer, uint64_t tickets_to_buy, bool broadcast )
+signed_transaction wallet_api::buy_ticket( asset_id_type lottery, account_id_type buyer, uint64_t tickets_to_buy )
 {
-   nft_lottery_token_purchase_operation op;
-   op.lottery_id = lottery;
-   op.buyer = buyer;
-   op.tickets_to_buy = tickets_to_buy;
-
-   signed_transaction trx;
-   trx.operations.push_back(op);
-   my->set_operation_fees( trx, my->_remote_db->get_global_properties().parameters.current_fees );
-   trx.validate();
-
-   return my->sign_transaction( trx, broadcast );
+   return my->buy_ticket(lottery, buyer, tickets_to_buy);
 }
+
 
 signed_transaction wallet_api::create_offer(set<nft_id_type> item_ids,
                                              string issuer_accound_id_or_name,

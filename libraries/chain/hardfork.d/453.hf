@@ -1,8 +1,0 @@
-// #453 Hardfork to retroactively correct referral percentages
-#ifndef HARDFORK_453_TIME
-#ifdef BUILD_PEERPLAYS_TESTNET
-#define HARDFORK_453_TIME (fc::time_point_sec::from_iso_string("2015-12-16T18:00:00"))
-#else
-#define HARDFORK_453_TIME (fc::time_point_sec::from_iso_string("2015-12-16T18:00:00"))
-#endif
-#endif

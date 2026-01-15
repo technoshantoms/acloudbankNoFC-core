@@ -31,10 +31,10 @@
 #include <graphene/chain/offer_object.hpp>
 #include <graphene/chain/nft_object.hpp>
 #include <graphene/chain/account_role_object.hpp>
-//#include <graphene/chain/random_number_object.hpp>
+#include <graphene/chain/random_number_object.hpp>
 
 #include <graphene/chain/account_object.hpp>
-//#include <graphene/protocol/random_number.hpp>
+#include <graphene/protocol/random_number.hpp>
 
 using namespace fc;
 namespace graphene { namespace chain { namespace detail {
@@ -454,6 +454,10 @@ struct get_impacted_account_visitor
       _impacted.insert( op.owner );
       _impacted.insert( op.operator_ );
    }
+   void operator()( const nft_lottery_end_operation& op ) {}
+   void operator()( const nft_lottery_reward_operation& op ) {
+      _impacted.insert( op.winner );
+   }
    void operator()( const offer_operation& op ) { 
       _impacted.insert( op.issuer );   
    }
@@ -477,9 +481,6 @@ struct get_impacted_account_visitor
    }
    void operator()( const nft_lottery_token_purchase_operation& op ){
       _impacted.insert( op.buyer );
-   }
-   void operator()( const nft_lottery_reward_operation& op ) {
-      _impacted.insert( op.winner );
    }
     void operator()( const random_number_store_operation& op ){
       _impacted.insert( op.account );
@@ -629,22 +630,22 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
         }
         case custom_permission_object_type:{
            auto aobj = dynamic_cast<const custom_permission_object*>(obj);
-           assert(aobj != nullptr);
+           FC_ASSERT(aobj != nullptr);
            accounts.insert(aobj->account);
            add_authority_accounts(accounts, aobj->auth);
            break;
         } case custom_account_authority_object_type:
            break;
-          case offer_object_type:{
+         case offer_object_type:{
            auto aobj = dynamic_cast<const offer_object*>(obj);
-           assert(aobj != nullptr);
+           FC_ASSERT(aobj != nullptr);
            accounts.insert(aobj->issuer);
            if (aobj->bidder.valid())
                accounts.insert(*aobj->bidder);
            break;
         } case nft_metadata_object_type:{
           auto aobj = dynamic_cast<const nft_metadata_object*>(obj);
-           assert(aobj != nullptr);
+           FC_ASSERT(aobj != nullptr);
            accounts.insert(aobj->owner);
            if (aobj->revenue_partner.valid())
                accounts.insert(*aobj->revenue_partner);
@@ -652,22 +653,22 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
         } 
         case random_number_object_type:{
             const auto& aobj = dynamic_cast<const random_number_object*>(obj);
-            assert( aobj != nullptr );
-            accounts.insert(*aobj->account);
-            accounts.insert(*aobj->random_number);
-            accounts.insert(*aobj->data);
+            FC_ASSERT( aobj != nullptr );
+            accounts.insert(aobj->account);
+            //accounts.insert(aobj->random_number);
+            //accounts.insert(aobj->data);
             break;
          }
        case nft_object_type:{
            auto aobj = dynamic_cast<const nft_object*>(obj);
-           assert(aobj != nullptr);
+           FC_ASSERT(aobj != nullptr);
            accounts.insert(aobj->owner);
            accounts.insert(aobj->approved);
            accounts.insert(aobj->approved_operators.begin(), aobj->approved_operators.end());
            break;
         } case account_role_object_type:{
            const auto& aobj = dynamic_cast<const account_role_object*>(obj);
-           assert( aobj != nullptr );
+           FC_ASSERT( aobj != nullptr );
            accounts.insert( aobj->owner );
            accounts.insert( aobj->whitelisted_accounts.begin(), aobj->whitelisted_accounts.end() );
            break;
@@ -715,13 +716,13 @@ void get_relevant_accounts( const object* obj, flat_set<account_id_type>& accoun
               break;
              case impl_sweeps_vesting_balance_object_type:{
               const auto& aobj = dynamic_cast<const sweeps_vesting_balance_object*>(obj);
-              assert( aobj != nullptr );
+              FC_ASSERT( aobj != nullptr );
               accounts.insert(aobj->owner);
               break;
            } 
            case impl_offer_history_object_type:{
               const auto& aobj = dynamic_cast<const offer_history_object*>(obj);
-              assert( aobj != nullptr );
+              FC_ASSERT( aobj != nullptr );
               accounts.insert(aobj->issuer);
               if (aobj->bidder.valid())
                   accounts.insert(*aobj->bidder);

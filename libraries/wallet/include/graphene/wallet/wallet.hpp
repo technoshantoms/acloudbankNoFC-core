@@ -913,6 +913,14 @@ class wallet_api
                                       fc::optional<bitasset_options> bitasset_opts,
                                       bool broadcast = false);
 
+      signed_transaction create_lottery(  string issuer,
+                                          string symbol,
+                                          asset_options common,
+                                          lottery_asset_options lottery_opts,
+                                          bool broadcast = false);
+
+      signed_transaction buy_ticket( asset_id_type lottery, account_id_type buyer, uint64_t tickets_to_buy );
+
       /** Create the specified amount of the specified asset and credit into the specified account.
        *
        * @param to_account the name or id of the account to receive the new supply
@@ -2144,6 +2152,8 @@ FC_API( graphene::wallet::wallet_api,
         (transfer)
         (get_transaction_id)
         (create_asset)
+        (create_lottery)
+        (get_lottery_balance)
         (update_asset)
         (update_asset_issuer)
         (update_bitasset)

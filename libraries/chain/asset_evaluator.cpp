@@ -138,7 +138,7 @@ void_result lottery_asset_create_evaluator::do_evaluate( const lottery_asset_cre
 
    database& d = db();
 
-   FC_ASSERT(d.is_asset_creation_allowed(op.symbol), "Lottery asset creation not allowed at current time");
+   //FC_ASSERT(d.is_asset_creation_allowed(op.symbol), "Lottery asset creation not allowed at current time");
 
    const auto& chain_parameters = d.get_global_properties().parameters;
    FC_ASSERT( op.common_options.whitelist_authorities.size() <= chain_parameters.maximum_asset_whitelist_authorities );
@@ -154,10 +154,10 @@ void_result lottery_asset_create_evaluator::do_evaluate( const lottery_asset_cre
    auto asset_symbol_itr = asset_indx.find( op.symbol );
    FC_ASSERT( asset_symbol_itr == asset_indx.end() );
 
-   if( d.head_block_time() > HARDFORK_385_TIME )
+   if( d.head_block_time() > HARDFORK_BSIP_40_TIME )
    {
 
-   if( d.head_block_time() <= HARDFORK_409_TIME )
+   if( d.head_block_time() <= HARDFORK_BSIP_72_TIME )
    {
       auto dotpos = op.symbol.find( '.' );
       if( dotpos != std::string::npos )
@@ -231,7 +231,7 @@ void lottery_asset_create_evaluator::pay_fee()
 {
    fee_is_odd = core_fee_paid.value & 1;
    core_fee_paid -= core_fee_paid.value/2;
-   consensus_evaluator::pay_fee();
+   //consensus_evaluator::pay_fee();
 }
 
 object_id_type lottery_asset_create_evaluator::do_apply( const lottery_asset_create_operation& op )
@@ -239,7 +239,7 @@ object_id_type lottery_asset_create_evaluator::do_apply( const lottery_asset_cre
    database& d = db();
 
    // includes changes from bitshares. (https://github.com/bitshares/bitshares-core/issues/429)
-   bool hf_429 = fee_is_odd && d.head_block_time() > HARDFORK_CORE_429_TIME;
+   bool hf_429 = fee_is_odd && d.head_block_time() > HARDFORK_BSIP_40_TIME;
 
    const asset_dynamic_data_object& dyn_asset =
       d.create<asset_dynamic_data_object>( [&]( asset_dynamic_data_object& a ) {

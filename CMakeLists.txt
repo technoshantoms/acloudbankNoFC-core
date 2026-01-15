@@ -44,7 +44,7 @@ endif()
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" )
 
 include(CheckCCompilerFlag)
-#include(Utils)
+include(Utils)
 
 # function to help with cUrl
 macro(FIND_CURL)
@@ -77,6 +77,88 @@ endmacro()
 # Save the old value of CMAKE_REQUIRED_FLAGS
 set( TEMP_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS} )
 
+# Check submodules
+if(NOT MANUAL_SUBMODULES)
+  find_package(Git)
+  if(GIT_FOUND)
+    function (check_submodule relative_path)
+      execute_process(COMMAND git rev-parse "HEAD" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${relative_path} OUTPUT_VARIABLE localHead)
+      execute_process(COMMAND git rev-parse "HEAD:${relative_path}" WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} OUTPUT_VARIABLE checkedHead)
+      string(COMPARE EQUAL "${localHead}" "${checkedHead}" upToDate)
+      if (upToDate)
+        message(STATUS "Submodule '${relative_path}' is up-to-date")
+      else()
+        message(FATAL_ERROR "Submodule '${relative_path}' is not up-to-date. Please update all submodules with\ngit submodule update --init --recursive --force\nor run cmake with -DMANUAL_SUBMODULES=1\n")
+      endif()
+    endfunction ()
+
+    message(STATUS "Checking submodules")
+    check_submodule(libraries/fc)
+  endif()
+endif()
+# Make sure to always re-run the test.
+unset( MANUAL_SUBMODULES CACHE )
+
+# Fortify source
+if (CMAKE_COMPILER_IS_GNUCXX)
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        message (STATUS "Setting optimizations for clang++")
+        set(CMAKE_CXX_FLAGS_RELEASE "-D_FORTIFY_SOURCE=2 -O3 -DNDEBUG=1")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-D_FORTIFY_SOURCE=2 -O3 -DNDEBUG=1 -g")
+
+        # check and add data execution prevention
+        message (STATUS "Enabling data execution prevention")
+        add_linker_flag("-fsanitize=safe-stack")
+
+        # check and add Stack-based buffer overrun detection
+        set(CMAKE_REQUIRED_FLAGS "-fstack-protector")
+        check_c_compiler_flag("" HAVE_STACKPROTECTOR)
+        if(HAVE_STACKPROTECTOR)
+            message (STATUS "Enabling stack-based buffer overrun detection")
+            add_flag_append(CMAKE_C_FLAGS "-fstack-protector")
+            add_flag_append(CMAKE_CXX_FLAGS "-fstack-protector")
+        endif()
+    else ()
+        message (STATUS "Setting optimizations for g++")
+        set(CMAKE_CXX_FLAGS_RELEASE "-D_FORTIFY_SOURCE=2 -O3 -DNDEBUG=1")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-D_FORTIFY_SOURCE=2 -O3 -DNDEBUG=1 -g")
+
+        # check and add data execution prevention
+        set(CMAKE_REQUIRED_FLAGS "-Wl,-znoexecstack")
+        check_c_compiler_flag("" HAVE_NOEXECSTACK)
+        if(HAVE_NOEXECSTACK)
+            message (STATUS "Enabling data execution prevention")
+            add_linker_flag("-znoexecstack")
+        endif()
+
+        # check and add Stack-based buffer overrun detection
+        set(CMAKE_REQUIRED_FLAGS "-fstack-protector-strong")
+        check_c_compiler_flag("" HAVE_STACKPROTECTOR)
+        if(HAVE_STACKPROTECTOR)
+            message (STATUS "Enabling stack-based buffer overrun detection")
+            add_flag_append(CMAKE_C_FLAGS "-fstack-protector-strong")
+            add_flag_append(CMAKE_CXX_FLAGS "-fstack-protector-strong")
+        endif()
+
+    endif ()
+endif ()
+
+# check for Data relocation and Protection (RELRO)
+set(CMAKE_REQUIRED_FLAGS "-Wl,-zrelro,-znow")
+check_c_compiler_flag("" HAVE_RELROFULL)
+if(HAVE_RELROFULL)
+    message (STATUS "Enabling full data relocation and protection")
+    add_linker_flag("-zrelro")
+    add_linker_flag("-znow")
+else()
+    #if full relro is not available, try partial relro
+    set(CMAKE_REQUIRED_FLAGS "-Wl,-zrelro")
+    check_c_compiler_flag("" HAVE_RELROPARTIAL)
+    if(HAVE_RELROPARTIAL)
+        message (STATUS "Enabling partial data relocation and protection")
+        add_linker_flag("-zrelro")
+    endif()
+endif()
 
 set(CMAKE_REQUIRED_FLAGS ${TEMP_REQUIRED_FLAGS} )
 
@@ -100,8 +182,8 @@ option(USE_PROFILER "Build with GPROF support(Linux)." OFF)
 set(Boost_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/CMakeModules/Boost")
 
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/GitVersionGen" )
-#include( GetGitRevisionDescription )
-#get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
+include( GetGitRevisionDescription )
+get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
 
 SET(BOOST_COMPONENTS)
 LIST(APPEND BOOST_COMPONENTS thread
@@ -137,6 +219,19 @@ ELSE( WIN32 )
 ENDIF(WIN32)
 
 FIND_PACKAGE(Boost CONFIG REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+
+# enforce more strict compiler warnings and errors
+add_compiler_flag_if_available("-Wall")
+add_compiler_flag_if_available("-Wclobbered")
+add_compiler_flag_if_available("-Wempty-body")
+add_compiler_flag_if_available("-Wformat-security")
+add_compiler_flag_if_available("-Wignored-qualifiers")
+add_compiler_flag_if_available("-Wimplicit-fallthrough=5")
+add_compiler_flag_if_available("-Wmissing-field-initializers")
+add_compiler_flag_if_available("-Wpointer-arith")
+add_compiler_flag_if_available("-Wshift-negative-value")
+add_compiler_flag_if_available("-Wtype-limits")
+add_compiler_flag_if_available("-Wunused-but-set-parameter")
 
 if( WIN32 )
 
