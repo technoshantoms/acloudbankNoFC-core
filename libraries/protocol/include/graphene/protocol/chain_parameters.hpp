@@ -132,6 +132,8 @@ struct parameter_extension
       inline uint32_t account_roles_max_lifetime()const {
          return extensions.value.account_roles_max_lifetime.valid() ? *extensions.value.account_roles_max_lifetime : ACCOUNT_ROLES_MAX_LIFETIME;
       }*/
+      private:
+      static void safe_copy(chain_parameters& to, const chain_parameters& from);
    };
 
 } }  // graphene::protocol
