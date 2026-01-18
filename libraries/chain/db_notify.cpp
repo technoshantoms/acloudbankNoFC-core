@@ -296,7 +296,8 @@ struct get_impacted_account_visitor
    void operator()( const custom_authority_delete_operation& op )
    {
       _impacted.insert( op.fee_payer() ); // account
-   }void operator()( const ticket_create_operation& op )
+   }
+   void operator()( const ticket_create_operation& op )
    {
       _impacted.insert( op.fee_payer() ); // account
    }

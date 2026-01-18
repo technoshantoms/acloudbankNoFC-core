@@ -1,37 +1,15 @@
-/*
- * Copyright (c) 2015-2018 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
- *
- * The MIT License
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-#include <graphene/chain/database.hpp>
+#include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/proposal_evaluator.hpp>
 #include <graphene/chain/proposal_object.hpp>
-#include <graphene/chain/hardfork.hpp>
+#include <graphene/chain/account_object.hpp>
+#include <graphene/protocol/account.hpp>
+#include <graphene/protocol/fee_schedule.hpp>
+#include <graphene/chain/exceptions.hpp>
+
 
 namespace graphene { namespace chain {
 
-namespace detail {
-
-}
+namespace detail { }
 
 struct proposal_operation_hardfork_visitor
 {
@@ -42,10 +20,11 @@ struct proposal_operation_hardfork_visitor
 
    proposal_operation_hardfork_visitor( const database& _db, const fc::time_point_sec bt )
    : db( _db ), block_time(bt), next_maintenance_time( db.get_dynamic_global_properties().next_maintenance_time ) {}
+   template<typename T, typename = std::enable_if_t<operation::tag<T>::value < operation::tag<tank_create_operation>::value>>
 
-   template<typename T,
-            std::enable_if_t<operation::tag<T>::value < operation::tag<tank_create_operation>::value, bool> = true>
-   void operator()(const T &) const {}
+       //1.  typename = std::enable_if_t<operation::tag<T>::value < operation::tag<tank_create_operation>::value>>
+ //2. template<typename T,  std::enable_if_t<operation::tag<T>::value <operation::tag<tank_create_operation>::value, bool> = true>
+   void operator()(const T & ) const {}
 
    void operator()(const graphene::chain::asset_create_operation &v) const {
       v.common_options.validate_flags( v.bitasset_opts.valid() );
@@ -67,7 +46,7 @@ struct proposal_operation_hardfork_visitor
    }
 
    void operator()(const graphene::chain::committee_member_update_global_parameters_operation &op) const {
-      if (!HARDFORK_BSIP_40_PASSED(block_time)) {
+      if (!HARDFORK_NFT_PASSED(block_time)) {
          FC_ASSERT(!op.new_parameters.extensions.value.custom_authority_options.valid(),
                    "Unable to set Custom Authority Options before hardfork BSIP 40");
          /*FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_create_operation>(),
@@ -98,6 +77,7 @@ struct proposal_operation_hardfork_visitor
    void operator()(const graphene::chain::custom_authority_delete_operation&) const {
       FC_ASSERT( HARDFORK_BSIP_40_PASSED(block_time), "Not allowed until hardfork BSIP 40" );
    }
+
    void operator()(const graphene::chain::custom_permission_create_operation &) const {
        FC_ASSERT( HARDFORK_NFT_PASSED(block_time), "custom_permission_create_operation not allowed yet!" );
    }
@@ -189,6 +169,7 @@ struct proposal_operation_hardfork_visitor
    using TNT_Ops = fc::typelist::list<tank_create_operation, tank_update_operation, tank_delete_operation,
                                       tank_query_operation, tap_open_operation, tap_connect_operation,
                                       account_fund_connection_operation, connection_fund_account_operation>;
+
    template<typename Op, std::enable_if_t<fc::typelist::contains<TNT_Ops, Op>(), bool> = true>
    void operator()(const Op&) const {
       FC_ASSERT(HARDFORK_BSIP_72_PASSED(block_time), "Not allowed before hardfork BSIP 72");

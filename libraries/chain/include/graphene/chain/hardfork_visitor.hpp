@@ -54,6 +54,16 @@ struct hardfork_visitor {
                             account_fund_connection_operation, connection_fund_account_operation>;
    using ticket_ops  = TL::list<ticket_create_operation, ticket_update_operation>;
    using ico_ops     = TL::list<ico_balance_claim_operation>;
+
+   using nft_ops     = TL::list<custom_permission_create_operation, custom_permission_update_operation, 
+                      custom_permission_delete_operation, custom_account_authority_create_operation,
+                      custom_account_authority_update_operation,custom_account_authority_delete_operation,
+                      offer_operation,bid_operation,cancel_offer_operation,finalize_offer_operation,
+                      nft_metadata_create_operation,nft_metadata_update_operation,nft_mint_operation,
+                      nft_safe_transfer_from_operation,nft_approve_operation,nft_set_approval_for_all_operation,
+                      account_role_create_operation,account_role_update_operation,account_role_delete_operation,
+                      nft_lottery_token_purchase_operation,nft_lottery_reward_operation,nft_lottery_end_operation >;
+         
    fc::time_point_sec now;
 
    hardfork_visitor(fc::time_point_sec now) : now(now) {}
@@ -75,6 +85,9 @@ struct hardfork_visitor {
    template<typename Op>
    std::enable_if_t<TL::contains<ico_ops, Op>(), bool>
    visit() { return true; }
+   template<typename Op>
+   std::enable_if_t<TL::contains<nft_ops, Op>(), bool>
+   visit() { return HARDFORK_NFT_PASSED (now); }
    /// @}
 
    /// typelist::runtime::dispatch adaptor
