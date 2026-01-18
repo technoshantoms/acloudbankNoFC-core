@@ -103,8 +103,8 @@ void database::adjust_sweeps_vesting_balance(account_id_type account, int64_t de
 {
    if( delta == 0 )
       return;
-   
-   asset_id_type asset_id = get_global_properties().parameters.sweeps_distribution_asset();
+   auto asset_id = get_index_type<asset_index>().get_next_id()
+   //asset_id_type asset_id = get_global_properties().parameters.sweeps_distribution_asset();
    
    auto& index = get_index_type<sweeps_vesting_balance_index>().indices().get<by_owner>();
    auto itr = index.find(account);
