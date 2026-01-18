@@ -26,7 +26,7 @@
 #include <graphene/chain/proposal_evaluator.hpp>
 #include <graphene/chain/proposal_object.hpp>
 #include <graphene/chain/hardfork.hpp>
-
+#include <graphene/chain/exceptions.hpp>
 namespace graphene { namespace chain {
 
 namespace detail {
@@ -88,7 +88,22 @@ struct proposal_operation_hardfork_visitor
          FC_ASSERT(!op.new_parameters.current_fees->exists<tap_connect_operation>());
          FC_ASSERT(!op.new_parameters.current_fees->exists<account_fund_connection_operation>());
       }
+
+      if (!HARDFORK_NFT_PASSED(block_time)) {
+         FC_ASSERT(!op.new_parameters.extensions.value.updatable_nft_options.valid(),
+                   "Unable to set TNT options before hardfork NFT_");
+         FC_ASSERT(!op.new_parameters.current_fees->exists<lottery_asset_create_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<ticket_purchase_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<lottery_reward_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<sweeps_vesting_claim_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<offer_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<bid_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<cancel_offer_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<nft_mint_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<nft_lottery_token_purchase_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<nft_lottery_reward_operation>());
    }
+}
    void operator()(const graphene::chain::custom_authority_create_operation&) const {
       FC_ASSERT( HARDFORK_BSIP_40_PASSED(block_time), "Not allowed until hardfork BSIP 40" );
    }
@@ -194,6 +209,19 @@ struct proposal_operation_hardfork_visitor
       FC_ASSERT(HARDFORK_BSIP_72_PASSED(block_time), "Not allowed before hardfork BSIP 72");
    }
    
+     using nft_ops     = TL::list<custom_permission_create_operation, custom_permission_update_operation, 
+                      custom_permission_delete_operation, custom_account_authority_create_operation,
+                      custom_account_authority_update_operation,custom_account_authority_delete_operation,
+                      offer_operation,bid_operation,cancel_offer_operation,finalize_offer_operation,
+                      nft_metadata_create_operation,nft_metadata_update_operation,nft_mint_operation,
+                      nft_safe_transfer_from_operation,nft_approve_operation,nft_set_approval_for_all_operation,
+                      account_role_create_operation,account_role_update_operation,account_role_delete_operation,
+                      nft_lottery_token_purchase_operation,nft_lottery_reward_operation, >;
+   template<typename Op, std::enable_if_t<fc::typelist::contains<nft_ops, Op>(), bool> = true>
+   void operator()(const Op&) const {
+      FC_ASSERT(HARDFORK_NFT_PASSED(block_time), "Not allowed before hardfork BSIP 72");
+   }
+
    // loop and self visit in proposals
    void operator()(const graphene::chain::proposal_create_operation &v) const {
       bool already_contains_proposal_update = false;
