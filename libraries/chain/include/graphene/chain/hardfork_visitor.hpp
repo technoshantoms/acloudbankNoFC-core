@@ -65,7 +65,7 @@ struct hardfork_visitor {
                       nft_lottery_token_purchase_operation,nft_lottery_reward_operation,nft_lottery_end_operation >;
          
    fc::time_point_sec now;
-   const fc::time_point_sec block_time;
+   //const fc::time_point_sec block_time;
 
    hardfork_visitor(fc::time_point_sec now) : now(now) {}
 

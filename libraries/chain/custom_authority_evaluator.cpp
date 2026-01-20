@@ -11,7 +11,7 @@ void_result custom_authority_create_evaluator::do_evaluate(const custom_authorit
 { try {
    const database& d = db();
    auto now = d.head_block_time();
-   FC_ASSERT(HARDFORK_BSIP_40_PASSED(now), "Custom active authorities are not yet enabled");
+   FC_ASSERT( HARDFORK_BSIP_40_PASSED(d.head_block_time()), "Custom active authorities are not yet enabled");
 
    op.account(d);
 

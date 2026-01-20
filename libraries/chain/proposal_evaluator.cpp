@@ -69,6 +69,16 @@ struct proposal_operation_hardfork_visitor
    void operator()(const T &v) const {}
 
    void operator()(const committee_member_update_global_parameters_operation &op) const {}
+
+    void operator()(const custom_authority_create_operation &v) const {
+       FC_ASSERT( block_time >= HARDFORK_BSIP_40_TIME, "custom_permission_create_operation not allowed yet!" );
+   }
+     void operator()(const custom_authority_update_operation &v) const {
+       FC_ASSERT( block_time >= HARDFORK_BSIP_40_TIME, "custom_permission_create_operation not allowed yet!" );
+   }
+     void operator()(const custom_authority_delete_operation &v) const {
+       FC_ASSERT( block_time >= HARDFORK_BSIP_40_TIME, "custom_permission_create_operation not allowed yet!" );
+   }
    void operator()(const tank_create_operation &v) const {
        FC_ASSERT( block_time >= HARDFORK_BSIP_72_TIME, "custom_permission_create_operation not allowed yet!" );
    }
