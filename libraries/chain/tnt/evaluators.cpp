@@ -286,7 +286,7 @@ void_result tap_connect_evaluator::do_apply(const tap_connect_evaluator::operati
 void_result account_fund_connection_evaluator::do_evaluate(const account_fund_connection_evaluator::operation_type& o)
 {
    const database& d = db();
-   FC_ASSERT( HARDFORK_BSIP_72_PASSED(d.head_block_time()),  "Tanks and Taps is not yet enabled on this blockchain");
+   FC_ASSERT(HARDFORK_BSIP_72_PASSED(d.head_block_time()), "Tanks and Taps is not yet enabled on this blockchain");
    db_wrapper = std::make_unique<cow_db_wrapper>(d);
    const auto& tnt_parameters = d.get_global_properties().parameters.extensions.value.updatable_tnt_options;
    FC_ASSERT(tnt_parameters.valid(), "Tanks and Taps is not yet configured on this blockchain");

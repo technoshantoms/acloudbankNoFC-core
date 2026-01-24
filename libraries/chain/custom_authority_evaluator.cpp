@@ -1,7 +1,3 @@
-/*
- * Acloudbank
- */
-
 #include <graphene/chain/custom_authority_evaluator.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
 #include <graphene/chain/account_object.hpp>
@@ -18,15 +14,14 @@ void_result custom_authority_create_evaluator::do_evaluate(const custom_authorit
    FC_ASSERT(HARDFORK_BSIP_40_PASSED(now), "Custom active authorities are not yet enabled");
 
    op.account(d);
-
    const auto& config = d.get_global_properties().parameters.extensions.value.custom_authority_options;
    FC_ASSERT(config.valid(), "Cannot use custom authorities yet: global configuration not set");
    FC_ASSERT(op.valid_to > now, "Custom authority expiration must be in the future");
    FC_ASSERT((op.valid_to - now).to_seconds() <= config->max_custom_authority_lifetime_seconds,
              "Custom authority lifetime exceeds maximum limit");
 
-   bool operation_forked_in = hardfork_visitor(now).visit((operation::tag_type)op.operation_type.value);
-   FC_ASSERT(operation_forked_in, "Cannot create custom authority for operation which is not valid yet");
+  // void operation_forked_in = hardfork_visitor(now).visit((operation::tag_type)op.operation_type.value);
+  // FC_ASSERT(operation_forked_in, "Cannot create custom authority for operation which is not valid yet");
 
    auto restriction_count = restriction::restriction_count(op.restrictions);
    FC_ASSERT(restriction_count <= config->max_custom_authority_restrictions,

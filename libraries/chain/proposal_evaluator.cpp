@@ -25,7 +25,7 @@
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/proposal_evaluator.hpp>
 #include <graphene/chain/proposal_object.hpp>
-//#include <graphene/chain/hardfork.hpp>
+#include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/exceptions.hpp>
 
 namespace graphene { namespace chain {
@@ -68,9 +68,51 @@ struct proposal_operation_hardfork_visitor
    template<typename T>
    void operator()(const T &v) const {}
 
-   void operator()(const committee_member_update_global_parameters_operation &op) const {}
+   void operator()(const committee_member_update_global_parameters_operation &op) const {
+     if (!HARDFORK_BSIP_40_PASSED(block_time)) {
+         FC_ASSERT(!op.new_parameters.extensions.value.custom_authority_options.valid(),
+                   "Unable to set Custom Authority Options before hardfork BSIP 40");
+         /*FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_create_operation>(),
+                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");
+         FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_update_operation>(),
+                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");
+         FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_delete_operation>(),
+                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");*/
+      }
+       if (!HARDFORK_NFT_TIME(block_time)) {
+         FC_ASSERT(!op.new_parameters.extensions.value.custom_authority_options.valid(),
+                   "Unable to set Custom Authority Options before hardfork BSIP 40");
+         /*FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_create_operation>(),
+                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");
+         FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_update_operation>(),
+                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");
+         FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_delete_operation>(),
+                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");*/
+      }
+      if (!HARDFORK_BSIP_72_PASSED(block_time)) {
+         FC_ASSERT(!op.new_parameters.extensions.value.updatable_tnt_options.valid(),
+                   "Unable to set TNT options before hardfork BSIP 72");
+         FC_ASSERT(!op.new_parameters.current_fees->exists<tank_create_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<tank_update_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<tank_delete_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<tank_query_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<tap_open_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<tap_connect_operation>());
+         FC_ASSERT(!op.new_parameters.current_fees->exists<account_fund_connection_operation>());
+      }
+   }
+   
+  /* void operator()(const graphene::chain::custom_authority_create_operation &v ) const {
+      FC_ASSERT( HARDFORK_BSIP_40_PASSED(block_time), "Not allowed until hardfork BSIP 40" );
+   }
+   void operator()(const graphene::chain::custom_authority_update_operation &v) const {
+      FC_ASSERT( HARDFORK_BSIP_40_PASSED(block_time), "Not allowed until hardfork BSIP 40" );
+   }
+   void operator()(const graphene::chain::custom_authority_delete_operation &v) const {
+      FC_ASSERT( HARDFORK_BSIP_40_PASSED(block_time), "Not allowed until hardfork BSIP 40" );
+   }*/
 
-    void operator()(const custom_authority_create_operation &v) const {
+   void operator()(const custom_authority_create_operation &v) const {
        FC_ASSERT( block_time >= HARDFORK_BSIP_40_TIME, "custom_permission_create_operation not allowed yet!" );
    }
      void operator()(const custom_authority_update_operation &v) const {
@@ -190,17 +232,6 @@ struct proposal_operation_hardfork_visitor
    void operator()(const proposal_create_operation &v) const {
       for (const op_wrapper &op : v.proposed_ops)
          op.op.visit(*this);
-   }
-};
-struct hardfork_visitor_214 // non-recursive proposal visitor
-{
-   typedef void result_type;
-
-   template<typename T>
-   void operator()(const T &v) const {}
-
-   void operator()(const proposal_update_operation &v) const {
-      FC_ASSERT(false, "Not allowed until hardfork 214");
    }
 };
 
