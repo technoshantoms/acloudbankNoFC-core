@@ -17,6 +17,19 @@ namespace graphene
                 int first_allowed_op = operation::tag<custom_permission_create_operation>::value;
                 switch (op_type)
                 {
+                case operation::tag<custom_authority_create_operation>::value:
+                case operation::tag<custom_authority_update_operation>::value:
+                case operation::tag<custom_authority_delete_operation>::value:
+                     FC_ASSERT(block_time >= HARDFORK_BSIP_40_TIME, "HARDFORK_BSIP_40 and custom not allowed on this operation yet!");
+                     break;
+                case operation::tag<tank_create_operation>::value:
+                case operation::tag<tank_update_operation>::value:
+                case operation::tag<tank_delete_operation>::value:
+                case operation::tag<tank_query_operation>::value:
+                case operation::tag<tap_open_operation>::value:
+                case operation::tag<tap_connect_operation>::value:
+                     FC_ASSERT(block_time >= HARDFORK_BSIP_72_TIME, "Custom HARDFORK_BSIP_72 and TnT not allowed on this operation yet!");
+                     break;
                 case operation::tag<custom_permission_create_operation>::value:
                 case operation::tag<custom_permission_update_operation>::value:
                 case operation::tag<custom_permission_delete_operation>::value:
@@ -40,23 +53,6 @@ namespace graphene
                 case operation::tag<nft_lottery_reward_operation>::value:
                 case operation::tag<nft_lottery_end_operation>::value:
                     FC_ASSERT(block_time >= HARDFORK_NFT_TIME, "Custom permissions and roles not allowed on this operation yet!");
-                    break;
-                    {
-                case operation::tag<tank_create_operation>::value:
-                case operation::tag<tank_update_operation>::value:
-                case operation::tag<tank_delete_operation>::value:
-                case operation::tag<tank_query_operation>::value:
-                case operation::tag<tap_open_operation>::value:
-                case operation::tag<tap_connect_operation>::value:
-                case operation::tag<offer_operation>::value:
-                case operation::tag<bid_operation>::value:
-                    FC_ASSERT(block_time >= HARDFORK_BSIP_72_TIME, "Custom permissions and roles not allowed on this operation yet!");
-                    break;
-                     {
-                case operation::tag<custom_authority_create_operation>::value:
-                case operation::tag<custom_authority_update_operation>::value:
-                case operation::tag<custom_authority_delete_operation>::value:
-                    FC_ASSERT(block_time >= HARDFORK_BSIP_40_TIME, "Custom permissions and roles not allowed on this operation yet!");
                     break;
                 default:
                     FC_ASSERT(op_type >= operation::tag<transfer_operation>::value && op_type < first_allowed_op, "Custom permissions and roles not allowed on this operation!");

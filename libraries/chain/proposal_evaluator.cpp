@@ -79,16 +79,6 @@ struct proposal_operation_hardfork_visitor
          FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_delete_operation>(),
                    "Unable to define fees for custom authority operations prior to hardfork BSIP 40");*/
       }
-       if (!HARDFORK_NFT_TIME(block_time)) {
-         FC_ASSERT(!op.new_parameters.extensions.value.custom_authority_options.valid(),
-                   "Unable to set Custom Authority Options before hardfork BSIP 40");
-         /*FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_create_operation>(),
-                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");
-         FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_update_operation>(),
-                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");
-         FC_ASSERT(!op.new_parameters.current_fees->exists<custom_authority_delete_operation>(),
-                   "Unable to define fees for custom authority operations prior to hardfork BSIP 40");*/
-      }
       if (!HARDFORK_BSIP_72_PASSED(block_time)) {
          FC_ASSERT(!op.new_parameters.extensions.value.updatable_tnt_options.valid(),
                    "Unable to set TNT options before hardfork BSIP 72");

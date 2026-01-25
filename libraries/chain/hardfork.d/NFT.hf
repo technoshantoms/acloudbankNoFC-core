@@ -1,7 +1,7 @@
+// HARDFORK_NFT_TIME (Custom Active Authorities) hardfork check
 #ifndef HARDFORK_NFT_TIME
-#ifdef BUILD_PEERPLAYS_TESTNET
-#define HARDFORK_NFT_TIME (fc::time_point_sec::from_iso_string("2020-08-15T00:00:00"))
-#else
-#define HARDFORK_NFT_TIME (fc::time_point_sec::from_iso_string("2020-12-21T00:00:00"))
+// Jan 1 2030, midnight; this is a dummy date until a hardfork date is scheduled
+#define HARDFORK_NFT_TIME (fc::time_point_sec( 1893456000 ))
+#define HARDFORK_NFT_TIME_PASSED(now) (now >= HARDFORK_NFT_TIME)
 #endif
-#endif
+
