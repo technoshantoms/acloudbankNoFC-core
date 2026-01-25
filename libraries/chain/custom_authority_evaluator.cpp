@@ -13,7 +13,7 @@ void_result custom_authority_create_evaluator::do_evaluate(const custom_authorit
 { try {
    const database& d = db();
    auto now = d.head_block_time();
-   FC_ASSERT(now >= HARDFORK_BSIP_40_TIME,, "Custom active authorities are not yet enabled");
+   FC_ASSERT(now >= HARDFORK_BSIP_40_TIME, "Custom active authorities are not yet enabled");
 
    op.account(d);
 
@@ -24,9 +24,9 @@ void_result custom_authority_create_evaluator::do_evaluate(const custom_authorit
    FC_ASSERT((op.valid_to - now).to_seconds() <= config->max_custom_authority_lifetime_seconds,
             "Custom authority lifetime exceeds maximum limit");
 
-  void operation_forked_in = rbac_hardfork_visitor(now).rvtor((operation::tag_type)op.operation_type.value);
+  //void operation_forked_in = rbac_operation_hardfork_visitor(now).rvtor((operation::tag_type)op.operation_type.value);
   //void operation_forked_in = hardfork_visitor(now).visit((operation::tag_type)op.operation_type.value);
-  FC_ASSERT(operation_forked_in, "Cannot create custom authority for operation which is not valid yet");
+  //FC_ASSERT(operation_forked_in, "Cannot create custom authority for operation which is not valid yet");
 
    auto restriction_count = restriction::restriction_count(op.restrictions);
    FC_ASSERT(restriction_count <= config->max_custom_authority_restrictions,
