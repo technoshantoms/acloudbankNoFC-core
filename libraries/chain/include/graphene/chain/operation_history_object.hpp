@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  */
 #pragma once
+#include <graphene/chain/types.hpp>
+#include <boost/multi_index_container.hpp>
 #include <graphene/db/generic_index.hpp>
 #include <graphene/protocol/operations.hpp>
 #include <graphene/db/object.hpp>
@@ -90,8 +92,8 @@ namespace graphene { namespace chain {
    class account_transaction_history_object :  public abstract_object<account_transaction_history_object>
    {
       public:
-         static constexpr uint8_t space_id = implementation_ids;
-         static constexpr uint8_t type_id  = impl_account_transaction_history_object_type;
+         static constexpr uint8_t space_id = api_ids;
+         static constexpr uint8_t type_id  = api_account_transaction_history_object_type;
          account_id_type                      account; /// the account this operation applies to
          operation_history_id_type            operation_id;
          uint64_t                             sequence = 0; /// the operation position within the given account

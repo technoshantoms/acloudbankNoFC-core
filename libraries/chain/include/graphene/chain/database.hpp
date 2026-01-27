@@ -355,7 +355,7 @@ namespace graphene { namespace chain {
           */
 
          // Dennis Satia
-         //void adjust_sweeps_vesting_balance(account_id_type account, int64_t delta);
+         void adjust_sweeps_vesting_balance(account_id_type account, int64_t delta);
 
          void deposit_market_fee_vesting_balance(const account_id_type &account_id, const asset &delta);
         /**

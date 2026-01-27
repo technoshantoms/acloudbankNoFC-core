@@ -39,7 +39,7 @@ GRAPHENE_DEFINE_IDS(chain, implementation_ids, impl_,
                     /* 2.6.x  */ (account_statistics)
                     /* 2.7.x  */ (transaction_history)
                     /* 2.8.x  */ (block_summary)
-                    /* 2.9.x  */ (account_transaction_history/*reserved1, moved to api_ids*/)
+                    /* 2.9.x  */ (reserved1/*account_transaction_history, moved to api_ids*/)
                     /* 2.10.x */ (chain_property)
                     /* 2.11.x */ (witness_schedule)
                     /* 2.12.x */ (budget_record)
@@ -52,6 +52,6 @@ GRAPHENE_DEFINE_IDS(chain, implementation_ids, impl_,
                     /* 2.19.x */(offer_history)
                    )
 //satia: please fix me!
-//GRAPHENE_DEFINE_IDS(chain, api_ids, api_,
- //                   (operation_history)
-  //                  (account_transaction_history))
+GRAPHENE_DEFINE_IDS(chain, api_ids, api_,
+                   (operation_history)
+                   (account_transaction_history))
