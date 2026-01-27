@@ -91,7 +91,7 @@ void graphene::chain::asset_bitasset_data_object::update_median_feeds( time_poin
    BOOST_PP_SEQ_FOR_EACH( CHECK_AND_CALCULATE_MEDIAN_VALUE, ~,
                           (maintenance_collateral_ratio)(maximum_short_squeeze_ratio)(initial_collateral_ratio) )
 #undef CHECK_AND_CALCULATE_MEDIAN_VALUE
-   BOOST_PP_SEQ_FOR_EACH( CALCULATE_MEDIAN_VALUE, ~, GRAPHENE_PRICE_FEED_FIELDS )
+//   BOOST_PP_SEQ_FOR_EACH( CALCULATE_MEDIAN_VALUE, ~, GRAPHENE_PRICE_FEED_FIELDS )
 #undef CALCULATE_MEDIAN_VALUE
    // *** End Median Calculations ***
 
