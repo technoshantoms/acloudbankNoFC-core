@@ -30,6 +30,9 @@
 #include <boost/multi_index/composite_key.hpp>
 
 namespace graphene { namespace chain {
+   using namespace graphene::protocol;
+   using namespace graphene::db;
+   
    class database;
 
 /**
