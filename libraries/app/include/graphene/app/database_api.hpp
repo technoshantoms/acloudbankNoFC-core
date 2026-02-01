@@ -52,11 +52,13 @@ using std::map;
 
 using namespace std;
 
+/*
 struct order {
    double price;
    double quote;
    double base;
 };
+*/
 
 class database_api_impl;
 
@@ -986,23 +988,6 @@ class database_api
    //////////////
 
    /**
-    * @brief Get account object from a name or ID
-    * @param name_or_id name or ID of the account
-    * @return Account ID
-    *
-    */
-   account_id_type get_account_id_from_string(const std::string &name_or_id) const;
-
-   /**
-    * @brief Get a list of accounts by ID or Name
-    * @param account_ids IDs of the accounts to retrieve
-    * @return The accounts corresponding to the provided IDs
-    *
-    * This function has semantics identical to @ref get_objects
-    */
-   vector<optional<account_object>> get_accounts(const vector<std::string> &account_names_or_ids) const;
-
-   /**
     * @brief Fetch all objects relevant to the specified accounts and subscribe to updates
     * @param callback Function to call with updates
     * @param names_or_ids Each item must be the name or ID of an account to retrieve
@@ -1014,22 +999,7 @@ class database_api
     *
     */
    std::map<string, full_account> get_full_accounts(const vector<string> &names_or_ids, bool subscribe);
-
-   optional<account_object> get_account_by_name(string name) const;
-
-   /**
-    *  @return all accounts that referr to the key or account id in their owner or active authorities.
-    */
-   vector<account_id_type> get_account_references(const std::string account_name_or_id) const;
-
-   /**
-    * @brief Get a list of accounts by name
-    * @param account_names Names of the accounts to retrieve
-    * @return The accounts holding the provided names
-    *
-    * This function has semantics identical to @ref get_objects
-    */
-   vector<optional<account_object>> lookup_account_names(const vector<string> &account_names) const;
+  
 
    /**
     * @brief Get names and IDs for registered accounts
