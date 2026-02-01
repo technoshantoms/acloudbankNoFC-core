@@ -39,6 +39,7 @@
  */
 
 namespace graphene { namespace chain {
+   class account_object;
    class asset_bitasset_data_object;
    class database;
    using namespace graphene::db;
@@ -63,6 +64,7 @@ namespace graphene { namespace chain {
 
          /// The number of shares currently in existence
          share_type current_supply;
+         optional<share_type> sweeps_tickets_sold;
          share_type accumulated_fees; ///< fees accumulate to be paid out over time
          share_type accumulated_collateral_fees; ///< accumulated collateral-denominated fees (for bitassets)
          share_type fee_pool;         ///< in core asset
@@ -415,7 +417,12 @@ namespace graphene { namespace chain {
       indexed_by<
          ordered_unique< tag<by_id>, member< object, object_id_type, &object::id > >,
          ordered_unique< tag<by_symbol>, member<asset_object, string, &asset_object::symbol> >,
-         ordered_non_unique< tag<by_issuer>, member<asset_object, account_id_type, &asset_object::issuer > >,
+         ordered_unique< tag<by_issuer>,
+            composite_key< asset_object,
+                member< asset_object, account_id_type, &asset_object::issuer >,
+                member< object, object_id_type, &object::id >
+            >
+         >,
          ordered_non_unique< tag<active_lotteries>,
             identity< asset_object >,
             lottery_asset_comparer

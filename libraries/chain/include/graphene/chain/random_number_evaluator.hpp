@@ -2,12 +2,11 @@
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/evaluator.hpp>
 #include <graphene/chain/types.hpp>
-
 #include <graphene/protocol/operations.hpp>
 
 namespace graphene { namespace chain {
 
-   class random_number_store_evaluator : public fee_handling_evaluator<random_number_store_evaluator>
+   class random_number_store_evaluator : public evaluator<random_number_store_evaluator>
    {
       public:
          typedef random_number_store_operation operation_type;

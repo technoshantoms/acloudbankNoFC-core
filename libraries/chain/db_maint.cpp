@@ -1212,16 +1212,16 @@ void database::perform_chain_maintenance(const signed_block& next_block, const g
       {
          p.parameters = std::move(*p.pending_parameters);
          p.pending_parameters.reset();
-      if( !p.pending_parameters->extensionss.value.rbac_max_permissions_per_account.valid() )
-            p.pending_parameters->extensionss.value.rbac_max_permissions_per_account = p.parameters.extensionss.value.rbac_max_permissions_per_account;
-      if( !p.pending_parameters->extensionss.value.rbac_max_account_authority_lifetime.valid() )
-            p.pending_parameters->extensionss.value.rbac_max_account_authority_lifetime = p.parameters.extensionss.value.rbac_max_account_authority_lifetime;
-      if( !p.pending_parameters->extensionss.value.rbac_max_authorities_per_permission.valid() )
-            p.pending_parameters->extensionss.value.rbac_max_authorities_per_permission = p.parameters.extensionss.value.rbac_max_authorities_per_permission;
-      if( !p.pending_parameters->extensionss.value.account_roles_max_per_account.valid() )
-            p.pending_parameters->extensionss.value.account_roles_max_per_account = p.parameters.extensionss.value.account_roles_max_per_account;
-      if( !p.pending_parameters->extensionss.value.account_roles_max_lifetime.valid() )
-            p.pending_parameters->extensionss.value.account_roles_max_lifetime = p.parameters.extensionss.value.account_roles_max_lifetime;
+      /*if( !p.pending_parameters->extensions.value.rbac_max_permissions_per_account.valid() )
+            p.pending_parameters->extensions.value.rbac_max_permissions_per_account = p.parameters.extensions.value.rbac_max_permissions_per_account;
+      if( !p.pending_parameters->extensions.value.rbac_max_account_authority_lifetime.valid() )
+            p.pending_parameters->extensions.value.rbac_max_account_authority_lifetime = p.parameters.extensions.value.rbac_max_account_authority_lifetime;
+      if( !p.pending_parameters->extensions.value.rbac_max_authorities_per_permission.valid() )
+            p.pending_parameters->extensions.value.rbac_max_authorities_per_permission = p.parameters.extensions.value.rbac_max_authorities_per_permission;
+      if( !p.pending_parameters->extensions.value.account_roles_max_per_account.valid() )
+            p.pending_parameters->extensions.value.account_roles_max_per_account = p.parameters.extensions.value.account_roles_max_per_account;
+      if( !p.pending_parameters->extensions.value.account_roles_max_lifetime.valid() )
+            p.pending_parameters->extensions.value.account_roles_max_lifetime = p.parameters.extensions.value.account_roles_max_lifetime;*/
       }
    });
 

@@ -1,6 +1,7 @@
 /*
  * acloudbank
  */
+#include <graphene/chain/operation_history_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/hardfork.hpp>
@@ -90,7 +91,7 @@ void graphene::chain::asset_bitasset_data_object::update_median_feeds( time_poin
    BOOST_PP_SEQ_FOR_EACH( CHECK_AND_CALCULATE_MEDIAN_VALUE, ~,
                           (maintenance_collateral_ratio)(maximum_short_squeeze_ratio)(initial_collateral_ratio) )
 #undef CHECK_AND_CALCULATE_MEDIAN_VALUE
-   BOOST_PP_SEQ_FOR_EACH( CALCULATE_MEDIAN_VALUE, ~, GRAPHENE_PRICE_FEED_FIELDS )
+//   BOOST_PP_SEQ_FOR_EACH( CALCULATE_MEDIAN_VALUE, ~, GRAPHENE_PRICE_FEED_FIELDS )
 #undef CALCULATE_MEDIAN_VALUE
    // *** End Median Calculations ***
 
@@ -209,7 +210,7 @@ map< account_id_type, vector< uint16_t > > asset_object::distribute_winners_part
       reward_op.lottery = get_id();
       reward_op.is_benefactor_reward = false;
       reward_op.winner = holders[winner_num];
-      if(db.head_block_time() > HARDFORK_5050_1_TIME && ticket_ids.size() > winner_num)
+      if(db.head_block_time() > HARDFORK_BSIP_40_TIME && ticket_ids.size() > winner_num)
       {
          const static_variant<uint64_t, void_t> tkt_id = ticket_ids[winner_num];
          reward_op.winner_ticket_id = tkt_id;
@@ -387,5 +388,5 @@ GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::price_feed_with_icr 
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::asset_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::asset_bitasset_data_object )
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::asset_dynamic_data_object )
-GRAPHENE_EXTERNAL_SERIALIZATION( graphene::chain::lottery_balance_object )
-GRAPHENE_EXTERNAL_SERIALIZATION( graphene::chain::sweeps_vesting_balance_object )
+GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::lottery_balance_object )
+GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::sweeps_vesting_balance_object )

@@ -1,5 +1,4 @@
 #pragma once
-#include <graphene/db/object.hpp>
 #include <graphene/db/generic_index.hpp>
 #include <graphene/chain/types.hpp>
 
@@ -9,8 +8,8 @@ namespace graphene { namespace chain {
    class random_number_object : public abstract_object<random_number_object>
    {
       public:
-         static const uint8_t space_id = protocol_ids;
-         static const uint8_t type_id  = random_number_object_type;
+         static constexpr uint8_t space_id = protocol_ids;
+         static constexpr uint8_t type_id  = random_number_object_type;
 
          account_id_type account; /* account who requested random number */
          time_point_sec timestamp; /* date and time when the number is read */

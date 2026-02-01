@@ -3,7 +3,7 @@
  */
 
 #include <graphene/chain/database.hpp>
-
+#include <graphene/protocol/chain_parameters.hpp>
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/asset_object.hpp>
 #include <graphene/chain/balance_object.hpp>
@@ -99,12 +99,13 @@ void database::adjust_balance(asset_id_type lottery_id, asset delta)
    }
 }
 
-void database::adjust_sweeps_vesting_balance(account_id_type account, int64_t delta)
+/*void database::adjust_sweeps_vesting_balance(account_id_type account, int64_t delta)
 {
    if( delta == 0 )
       return;
-   
-   asset_id_type asset_id = get_global_properties().parameters.sweeps_distribution_asset();
+
+   //asset_id_type asset_id = get_global_properties().parameters.get_next_id()
+    asset_id_type asset_id = get_global_properties().parameters.sweeps_distribution_asset();
    
    auto& index = get_index_type<sweeps_vesting_balance_index>().indices().get<by_owner>();
    auto itr = index.find(account);
@@ -129,7 +130,7 @@ void database::adjust_sweeps_vesting_balance(account_id_type account, int64_t de
          b.last_claim_date = head_block_time();
       });
    }
-}
+}*/
 
 namespace detail {
 

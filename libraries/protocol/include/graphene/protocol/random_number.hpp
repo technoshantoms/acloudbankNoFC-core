@@ -1,5 +1,6 @@
 #pragma once
-#include <graphene/protocol/asset.hpp>
+//#include <graphene/protocol/base.hpp>
+//#include <graphene/protocol/asset.hpp>
 namespace graphene { namespace protocol {
 
    struct random_number_store_operation : public base_operation

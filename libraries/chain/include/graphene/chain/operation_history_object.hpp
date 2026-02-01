@@ -22,11 +22,12 @@
  * THE SOFTWARE.
  */
 #pragma once
-
 #include <graphene/chain/types.hpp>
+#include <boost/multi_index_container.hpp>
 #include <graphene/db/generic_index.hpp>
 #include <graphene/protocol/operations.hpp>
 #include <graphene/db/object.hpp>
+
 #include <boost/multi_index/composite_key.hpp>
 
 namespace graphene { namespace chain {
@@ -141,14 +142,15 @@ namespace graphene { namespace chain {
 
 MAP_OBJECT_ID_TO_TYPE(graphene::chain::operation_history_object)
 MAP_OBJECT_ID_TO_TYPE(graphene::chain::account_transaction_history_object)
-//satia disabled these Macros 
-//FC_REFLECT_TYPENAME( graphene::chain::operation_history_object )
-//FC_REFLECT_TYPENAME( graphene::chain::account_transaction_history_object )
-//satia created bellow two Macros ..
+
+FC_REFLECT_TYPENAME( graphene::chain::operation_history_object )
+FC_REFLECT_TYPENAME( graphene::chain::account_transaction_history_object )
+
+/*
 FC_REFLECT_DERIVED( graphene::chain::operation_history_object, (graphene::chain::object),
                     (op)(result)(block_num)(trx_in_block)(op_in_trx)(virtual_op) )
 FC_REFLECT_DERIVED( graphene::chain::account_transaction_history_object, (graphene::chain::object),
                     (account)(operation_id)(sequence)(next) )
-
+*/
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::chain::operation_history_object )
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::chain::account_transaction_history_object )

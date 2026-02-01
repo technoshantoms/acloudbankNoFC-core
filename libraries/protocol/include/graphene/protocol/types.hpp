@@ -29,6 +29,7 @@
 #include <fc/safe.hpp>
 #include <fc/container/flat.hpp>
 #include <fc/string.hpp>
+//#include <graphene/protocol/ext.hpp>
 
 #include <fc/io/datastream.hpp>
 #include <fc/io/raw_fwd.hpp>
@@ -303,7 +304,7 @@ void from_variant( const fc::variant& var, std::shared_ptr<const graphene::proto
 
 /// Object types in the Protocol Space (enum object_type (1.x.x))
 GRAPHENE_DEFINE_IDS(protocol, protocol_ids, /*protocol objects are not prefixed*/,
-                     /* 1.0.x  */ (null) // no data
+                    /* 1.0.x  */ (null) // no data
                     /* 1.1.x  */ (base) // no data
                     /* 1.2.x  */ (account)
                     /* 1.3.x  */ (asset)
@@ -334,7 +335,9 @@ GRAPHENE_DEFINE_IDS(protocol, protocol_ids, /*protocol objects are not prefixed*
                     /* 1.28.x */ (nft_metadata)
                     /* 1.29.x */ (nft)
                     /* 1.30.x */ (account_role)
-                    /* 1.31.x */(random_number)
+                    ///* 1.31.x */ (sidechain_address)
+                    // /* 1.32.x */(sidechain_transaction)
+                    /* 1.33.x */(random_number)
                    )
 
 FC_REFLECT(graphene::protocol::public_key_type, (key_data))

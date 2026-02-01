@@ -1,11 +1,11 @@
-
-
+//acloudbank
 #include <graphene/chain/custom_authority_evaluator.hpp>
 #include <graphene/chain/custom_authority_object.hpp>
 #include <graphene/chain/account_object.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/exceptions.hpp>
-#include <graphene/chain/hardfork_visitor.hpp>
+//#include <graphene/chain/hardfork_visitor.hpp>
+#include <graphene/chain/rbac_hardfork_visitor.hpp>
 
 namespace graphene { namespace chain {
 
@@ -13,7 +13,7 @@ void_result custom_authority_create_evaluator::do_evaluate(const custom_authorit
 { try {
    const database& d = db();
    auto now = d.head_block_time();
-   FC_ASSERT(HARDFORK_BSIP_40_PASSED(now), "Custom active authorities are not yet enabled");
+   FC_ASSERT(now >= HARDFORK_BSIP_40_TIME, "Custom active authorities are not yet enabled");
 
    op.account(d);
 
@@ -21,10 +21,11 @@ void_result custom_authority_create_evaluator::do_evaluate(const custom_authorit
    FC_ASSERT(config.valid(), "Cannot use custom authorities yet: global configuration not set");
    FC_ASSERT(op.valid_to > now, "Custom authority expiration must be in the future");
    FC_ASSERT((op.valid_to - now).to_seconds() <= config->max_custom_authority_lifetime_seconds,
-             "Custom authority lifetime exceeds maximum limit");
+            "Custom authority lifetime exceeds maximum limit");
 
-   bool operation_forked_in = hardfork_visitor(now).visit((operation::tag_type)op.operation_type.value);
-   FC_ASSERT(operation_forked_in, "Cannot create custom authority for operation which is not valid yet");
+  //void operation_forked_in = rbac_operation_hardfork_visitor(now).rvtor((operation::tag_type)op.operation_type.value);
+  //void operation_forked_in = hardfork_visitor(now).visit((operation::tag_type)op.operation_type.value);
+  //FC_ASSERT(operation_forked_in, "Cannot create custom authority for operation which is not valid yet");
 
    auto restriction_count = restriction::restriction_count(op.restrictions);
    FC_ASSERT(restriction_count <= config->max_custom_authority_restrictions,

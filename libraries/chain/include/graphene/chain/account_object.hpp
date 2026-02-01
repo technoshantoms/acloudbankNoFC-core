@@ -312,8 +312,8 @@ namespace graphene { namespace chain {
 
          account_id_type get_id()const { return id; }
    };
-    
-     /**
+
+   /**
     *  @brief This secondary index will allow a reverse lookup of all accounts that have been referred by
     *  a particular account.
     */
@@ -336,25 +336,6 @@ namespace graphene { namespace chain {
     */
    class account_member_index : public secondary_index
    {
-
-      /* std::less::operator() is less efficient so using key_compare here.
-       * Let assume that it has two keys key1 and key2 and we want to insert key3.
-       * the insert function needs to first call std::less::operator() with key1 and key3.
-       * Assume std::less::operator()(key1, key3) returns false.
-       * It has to call std::less::operator() again with the keys switched, 
-       * std::less::operator()(key3, key1), to decide whether key1 is equal to key3 or 
-       * key3 is greater than key1. There are two calls to std::less::operator() to make
-       * a decision if the first call returns false.
-       * std::map::insert and std::set used key_compare, 
-       * there would be sufficient information to make the right decision using just one call.
-       */
-      class pubkey_comparator {
-      public:
-         inline bool operator()( const public_key_type& a, const public_key_type& b )const
-         {
-            return a.key_data < b.key_data;
-         }
-      };
       public:
          virtual void object_inserted( const object& obj ) override;
          virtual void object_removed( const object& obj ) override;
@@ -453,7 +434,7 @@ namespace graphene { namespace chain {
     * @ingroup object_index
     */
    typedef generic_index<account_object, account_multi_index_type> account_index;
-   
+
    struct by_owner;
    struct by_maintenance_seq;
 

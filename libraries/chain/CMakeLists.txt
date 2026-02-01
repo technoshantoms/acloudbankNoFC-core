@@ -44,6 +44,7 @@ add_library( graphene_chain
              witness_evaluator.cpp
              committee_member_evaluator.cpp
              asset_evaluator.cpp
+             lottery_evaluator.cpp
              transfer_evaluator.cpp
              proposal_evaluator.cpp
              market_evaluator.cpp
@@ -61,6 +62,8 @@ add_library( graphene_chain
              offer_object.cpp
              offer_evaluator.cpp
              nft_evaluator.cpp
+
+      #affiliate_payout.cpp
             
              tnt/object.cpp
              tnt/evaluators.cpp
@@ -89,6 +92,9 @@ add_library( graphene_chain
              permission_evaluator.cpp
              commit_reveal_object.cpp
              commit_reveal_evaluator.cpp
+
+             random_number_evaluator.cpp
+             
              ${HEADERS}
              "${CMAKE_CURRENT_BINARY_DIR}/include/graphene/chain/hardfork.hpp"
            )

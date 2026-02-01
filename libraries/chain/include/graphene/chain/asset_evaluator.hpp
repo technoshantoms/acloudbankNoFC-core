@@ -53,7 +53,6 @@ namespace graphene { namespace chain {
 
          void_result do_evaluate( const lottery_asset_create_operation& o );
          object_id_type do_apply( const lottery_asset_create_operation& o );
-
          /** override the default behavior defined by generic_evalautor which is to
           * post the fee to fee_paying_account_stats.pending_fees
           */

@@ -324,9 +324,11 @@ std::string operation_printer::operator()(const lottery_asset_create_operation& 
    if( op.bitasset_opts.valid() )
       out << "BitAsset ";
    else
-      out << "User-Issued Asset ";
+      out << "User-Issue Asset ";
    out << "'" << op.symbol << "' with issuer " << wallet.get_account(op.issuer).name;
-   return fee(op.fee);
+   print_fee(op.fee);
+   print_result();
+   return "";
 }
 
 std::string operation_printer::operator()(const htlc_create_operation& op) const

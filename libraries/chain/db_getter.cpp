@@ -165,6 +165,29 @@ std::vector<uint32_t> database::get_seeds( asset_id_type for_asset, uint8_t coun
    return result;
 }
 
+const std::vector<uint32_t> database::get_winner_numbers( asset_id_type for_asset, uint32_t count_members, uint8_t count_winners ) const
+{
+   std::vector<uint32_t> result;
+   if( count_members < count_winners ) count_winners = count_members;
+   if( count_winners == 0 ) return result;
+   result.reserve(count_winners);
+
+   auto seeds = get_seeds(for_asset, count_winners);
+
+   for (auto current_seed = seeds.begin(); current_seed != seeds.end(); ++current_seed) {
+      uint8_t winner_num = *current_seed % count_members;
+      while( std::find(result.begin(), result.end(), winner_num) != result.end() ) {
+         *current_seed = (*current_seed * 1103515245 + 12345) / 65536; //using gcc's consts for pseudorandom
+         winner_num = *current_seed % count_members;
+      }
+      result.push_back(winner_num);
+      if (result.size() >= count_winners) break;
+   }
+   
+   FC_ASSERT(result.size() == count_winners);
+   return result;
+}
+
 const account_statistics_object& database::get_account_stats_by_owner( account_id_type owner )const
 {
    return account_statistics_id_type(owner.instance)(*this);
@@ -242,5 +265,25 @@ vector<uint64_t> database::get_random_numbers(uint64_t minimum, uint64_t maximum
 
    return v;
 }
+/*bool database::is_asset_creation_allowed(const string &symbol)
+{
+   time_point_sec now = head_block_time();
+   std::unordered_set<std::string> post_son_hf_symbols = {"ETH", "USDT", "BNB", "ADA", "DOGE", "XRP", "USDC", "DOT", "UNI", "BUSD", "BCH", "LTC", "SOL", "LINK", "MATIC", "THETA",
+                                                          "WBTC", "XLM", "ICP", "DAI", "VET", "ETC", "TRX", "FIL", "XMR", "EGR", "EOS", "SHIB", "AAVE", "CRO", "ALGO", "AMP", "BTCB",
+                                                          "BSV", "KLAY", "CAKE", "FTT", "LEO", "XTZ", "TFUEL", "MIOTA", "LUNA", "NEO", "ATOM", "MKR", "FEI", "WBNB", "UST", "AVAX",
+                                                          "STEEM", "HIVE", "HBD", "SBD", "BTS"};
+   if (symbol == "BTC")
+   {
+      if (now < HARDFORK_SON_TIME)
+         return false;
+   }
+
+   if (post_son_hf_symbols.find(symbol) != post_son_hf_symbols.end())
+   {
+      if (now >= HARDFORK_SON_TIME)
+         return false;
+   }
+   return true;
+}*/
 
 } }

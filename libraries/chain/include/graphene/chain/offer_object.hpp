@@ -19,8 +19,8 @@ namespace graphene
         class offer_object : public graphene::db::abstract_object<offer_object>
         {
         public:
-            static const uint8_t space_id = protocol_ids;
-            static const uint8_t type_id = offer_object_type;
+            static constexpr uint8_t space_id = protocol_ids;
+            static constexpr uint8_t type_id = offer_object_type;
 
             account_id_type issuer;
 
@@ -64,10 +64,9 @@ namespace graphene
         {
         public:
             virtual void object_inserted(const object &obj) override;
-            virtual void object_removed(const object &obj) override;
-            virtual void about_to_modify(const object &before) override{};
+            virtual void about_to_modify(const object &before) override;
             virtual void object_modified(const object &after) override;
-
+            virtual void object_removed(const object &obj) override;
             set<nft_id_type> _locked_items;
         };
 

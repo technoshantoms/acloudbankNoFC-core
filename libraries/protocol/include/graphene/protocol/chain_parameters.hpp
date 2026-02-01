@@ -7,6 +7,7 @@
 #include <memory>
 #include <graphene/protocol/base.hpp>
 #include <graphene/protocol/tnt/parameters.hpp>
+#include <graphene/protocol/config.hpp>
 
 namespace graphene { namespace protocol {
    struct fee_schedule;
@@ -80,14 +81,15 @@ struct parameter_extension
          optional< htlc_options > updatable_htlc_options;
          optional< custom_authority_options_type > custom_authority_options;
          optional< tnt::parameters_type > updatable_tnt_options;
+         optional< parameter_extension > updatable_nft_options;
          optional< uint16_t > market_fee_network_percent;
          optional< uint16_t > maker_fee_discount_percent;
          optional< uint16_t > electoral_threshold;
       };
-      extension<parameter_extension> extensionss;
 
       extension<ext> extensions;
 
+       /** defined in fee_schedule.cpp */
       void validate()const;
       
       chain_parameters();
@@ -105,33 +107,58 @@ struct parameter_extension
       /// If @ref electoral_threshold is valid, return the value it contains, otherwise return 0
       uint16_t get_electoral_threshold() const;
 
-      inline uint16_t sweeps_distribution_percentage()const {
-         return extensionss.value.sweeps_distribution_percentage.valid() ? *extensionss.value.sweeps_distribution_percentage : SWEEPS_DEFAULT_DISTRIBUTION_PERCENTAGE;
+    inline uint16_t sweeps_distribution_percentage()const {
+         return  SWEEPS_DEFAULT_DISTRIBUTION_PERCENTAGE;
       }
       inline asset_id_type sweeps_distribution_asset()const {
-         return extensionss.value.sweeps_distribution_asset.valid() ? *extensionss.value.sweeps_distribution_asset : SWEEPS_DEFAULT_DISTRIBUTION_ASSET;
+         return  SWEEPS_DEFAULT_DISTRIBUTION_ASSET;
       }
       inline account_id_type sweeps_vesting_accumulator_account()const {
-         return extensionss.value.sweeps_vesting_accumulator_account.valid() ? *extensionss.value.sweeps_vesting_accumulator_account : SWEEPS_ACCUMULATOR_ACCOUNT;
+         return  SWEEPS_ACCUMULATOR_ACCOUNT;
+      }
+      inline uint16_t rbac_max_permissions_per_account()const {
+         return  RBAC_MAX_PERMISSIONS_PER_ACCOUNT;
+      }
+      inline uint32_t rbac_max_account_authority_lifetime()const {
+         return  RBAC_MAX_ACCOUNT_AUTHORITY_LIFETIME;
+      }
+      inline uint16_t rbac_max_authorities_per_permission()const {
+         return  RBAC_MAX_AUTHS_PER_PERMISSION;
+      }
+      inline uint16_t account_roles_max_per_account()const {
+         return  ACCOUNT_ROLES_MAX_PER_ACCOUNT;
+      }
+      inline uint32_t account_roles_max_lifetime()const {
+         return  ACCOUNT_ROLES_MAX_LIFETIME;
       }
 
+      /*inline uint16_t sweeps_distribution_percentage()const {
+         return extensions.value.sweeps_distribution_percentage.valid() ? *extensions.value.sweeps_distribution_percentage : SWEEPS_DEFAULT_DISTRIBUTION_PERCENTAGE;
+      }
+      inline asset_id_type sweeps_distribution_asset()const {
+         return extensions.value.sweeps_distribution_asset.valid() ? *extensions.value.sweeps_distribution_asset : SWEEPS_DEFAULT_DISTRIBUTION_ASSET;
+      }
+      inline account_id_type sweeps_vesting_accumulator_account()const {
+         return extensions.value.sweeps_vesting_accumulator_account.valid() ? *extensions.value.sweeps_vesting_accumulator_account : SWEEPS_ACCUMULATOR_ACCOUNT;
+      }
+      inline uint16_t rbac_max_permissions_per_account()const {
+         return extensions.value.rbac_max_permissions_per_account.valid() ? *extensions.value.rbac_max_permissions_per_account : RBAC_MAX_PERMISSIONS_PER_ACCOUNT;
+      }
+      inline uint32_t rbac_max_account_authority_lifetime()const {
+         return extensions.value.rbac_max_account_authority_lifetime.valid() ? *extensions.value.rbac_max_account_authority_lifetime : RBAC_MAX_ACCOUNT_AUTHORITY_LIFETIME;
+      }
+      inline uint16_t rbac_max_authorities_per_permission()const {
+         return extensions.value.rbac_max_authorities_per_permission.valid() ? *extensions.value.rbac_max_authorities_per_permission : RBAC_MAX_AUTHS_PER_PERMISSION;
+      }
+      inline uint16_t account_roles_max_per_account()const {
+         return extensions.value.account_roles_max_per_account.valid() ? *extensions.value.account_roles_max_per_account : ACCOUNT_ROLES_MAX_PER_ACCOUNT;
+      }
+      inline uint32_t account_roles_max_lifetime()const {
+         return extensions.value.account_roles_max_lifetime.valid() ? *extensions.value.account_roles_max_lifetime : ACCOUNT_ROLES_MAX_LIFETIME;
+      }*/
+      
+      private:
       static void safe_copy(chain_parameters& to, const chain_parameters& from);
-
-      inline uint16_t rbac_max_permissions_per_account() const {
-         return extensionss.value.rbac_max_permissions_per_account.valid() ? *extensionss.value.rbac_max_permissions_per_account : RBAC_MAX_PERMISSIONS_PER_ACCOUNT;
-      }
-      inline uint32_t rbac_max_account_authority_lifetime() const {
-         return extensionss.value.rbac_max_account_authority_lifetime.valid() ? *extensionss.value.rbac_max_account_authority_lifetime : RBAC_MAX_ACCOUNT_AUTHORITY_LIFETIME;
-      }
-      inline uint16_t rbac_max_authorities_per_permission() const {
-         return extensionss.value.rbac_max_authorities_per_permission.valid() ? *extensionss.value.rbac_max_authorities_per_permission : RBAC_MAX_AUTHS_PER_PERMISSION;
-      }
-      inline uint16_t account_roles_max_per_account() const {
-         return extensionss.value.account_roles_max_per_account.valid() ? *extensionss.value.account_roles_max_per_account : ACCOUNT_ROLES_MAX_PER_ACCOUNT;
-      }
-      inline uint32_t account_roles_max_lifetime() const {
-         return extensionss.value.account_roles_max_lifetime.valid() ? *extensionss.value.account_roles_max_lifetime : ACCOUNT_ROLES_MAX_LIFETIME;
-      }
    };
 
 } }  // graphene::protocol
@@ -148,15 +175,6 @@ FC_REFLECT( graphene::protocol::custom_authority_options_type,
       (max_custom_authority_restrictions)
 )
 
-FC_REFLECT( graphene::protocol::chain_parameters::ext,
-      (updatable_htlc_options)
-      (custom_authority_options)
-      (updatable_tnt_options)
-      (market_fee_network_percent)
-      (maker_fee_discount_percent)
-      (electoral_threshold)
-)
-
 FC_REFLECT( graphene::protocol::parameter_extension,
    (rbac_max_permissions_per_account)
    (rbac_max_account_authority_lifetime)
@@ -166,6 +184,16 @@ FC_REFLECT( graphene::protocol::parameter_extension,
    (sweeps_distribution_percentage)
    (sweeps_distribution_asset)
    (sweeps_vesting_accumulator_account)
+)
+
+FC_REFLECT( graphene::protocol::chain_parameters::ext,
+      (updatable_htlc_options)
+      (custom_authority_options)
+      (updatable_tnt_options)
+      (updatable_nft_options)
+      (market_fee_network_percent)
+      (maker_fee_discount_percent)
+      (electoral_threshold)
 )
 
 FC_REFLECT( graphene::protocol::chain_parameters,
@@ -198,7 +226,6 @@ FC_REFLECT( graphene::protocol::chain_parameters,
             (rsquared_witnesses_top_max)
             (rsquared_witnesses_active_max)
             (extensions)
-            (extensionss)
           )
 
 GRAPHENE_DECLARE_EXTERNAL_SERIALIZATION( graphene::protocol::chain_parameters )

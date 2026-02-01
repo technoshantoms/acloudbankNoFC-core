@@ -39,6 +39,10 @@
 #include <graphene/chain/custom_account_authority_object.hpp>
 #include <graphene/chain/offer_object.hpp>
 #include <graphene/chain/nft_object.hpp>
+#include <graphene/chain/random_number_evaluator.hpp>
+
+//#include <graphene/chain/sidechain_address_evaluator.hpp>
+//#include <graphene/chain/sidechain_transaction_evaluator.hpp>//
 //NFT 
 #include <graphene/chain/custom_permission_evaluator.hpp>
 #include <graphene/chain/custom_account_authority_evaluator.hpp>
@@ -53,6 +57,8 @@
 #include <graphene/chain/content_card_object.hpp>
 #include <graphene/chain/permission_object.hpp>
 #include <graphene/chain/commit_reveal_object.hpp>
+//#include <graphene/chain/sidechain_address_object.hpp>
+//#include <graphene/chain/sidechain_transaction_object.hpp>
 
 #include <graphene/chain/account_evaluator.hpp>
 #include <graphene/chain/asset_evaluator.hpp>
@@ -181,6 +187,16 @@ void database::initialize_evaluators()
    register_evaluator<lottery_reward_evaluator>();
    register_evaluator<lottery_end_evaluator>();
    register_evaluator<sweeps_vesting_claim_evaluator>();
+   /*
+   register_evaluator<add_sidechain_address_evaluator>();
+   register_evaluator<update_sidechain_address_evaluator>();
+   register_evaluator<delete_sidechain_address_evaluator>();
+   register_evaluator<sidechain_transaction_create_evaluator>();
+   register_evaluator<sidechain_transaction_sign_evaluator>();
+   register_evaluator<sidechain_transaction_send_evaluator>();
+   register_evaluator<sidechain_transaction_settle_evaluator>();
+   */
+   register_evaluator<random_number_store_evaluator>();
 }
 
 void database::initialize_indexes()
@@ -188,10 +204,10 @@ void database::initialize_indexes()
    reset_indexes();
    //satia enabled me...
    _undo_db.set_max_size( GRAPHENE_MIN_UNDO_HISTORY );
-   _check_policy_1 = allocate_object_space<database_lock_safety_check>(protocol_ids);
-   _check_policy_2 = allocate_object_space<database_lock_safety_check>(implementation_ids);
-    allocate_object_space<null_safety_check>(api_ids);
-   FC_ASSERT(_check_policy_1 != nullptr && _check_policy_2 != nullptr, "Failed to allocate object spaces");
+   //_check_policy_1 = allocate_object_space<database_lock_safety_check>(protocol_ids);
+   //_check_policy_2 = allocate_object_space<database_lock_safety_check>(implementation_ids);
+   // allocate_object_space<null_safety_check>(api_ids);
+   //FC_ASSERT(_check_policy_1 != nullptr && _check_policy_2 != nullptr, "Failed to allocate object spaces");
 
    //Protocol object indexes
    add_index< primary_index<asset_index, 13> >(); // 8192 assets per chunk
@@ -220,6 +236,9 @@ void database::initialize_indexes()
    add_index< primary_index<custom_account_authority_index> >();
    auto offer_idx = add_index< primary_index<offer_index> >();
    offer_idx->add_secondary_index<offer_item_index>();
+
+   //add_index< primary_index<sidechain_address_index> >();
+   //add_index< primary_index<sidechain_transaction_index> >();//
 
    add_index< primary_index<nft_metadata_index > >();
    add_index< primary_index<nft_index > >();
@@ -255,8 +274,8 @@ void database::initialize_indexes()
    add_index< primary_index< permission_index,                          20> >();
    add_index< primary_index< commit_reveal_index,                       20> >();
 
-   _check_policy_1->lock();
-   _check_policy_2->lock();
+  // _check_policy_1->lock();
+  // _check_policy_2->lock();
 }
 
 void database::init_genesis(const genesis_state_type& genesis_state)

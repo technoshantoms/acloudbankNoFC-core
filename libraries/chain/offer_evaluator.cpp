@@ -213,7 +213,7 @@ namespace graphene
                     obj.maximum_price = offer.maximum_price;
                     obj.buying_item = offer.buying_item;
                     obj.offer_expiration_date = offer.offer_expiration_date;
-                    obj.result = result_type::Cancelled;
+                    obj.result = result_types::Cancelled;
                 });
                 // This should unlock the item
                 d.remove(op.offer_id(d));
@@ -232,7 +232,7 @@ namespace graphene
                 FC_ASSERT(now >= HARDFORK_NFT_TIME, "Not allowed until NFT HF");
                 const auto &offer = op.offer_id(d);
 
-                if (op.result != result_type::ExpiredNoBid)
+                if (op.result != result_types::ExpiredNoBid)
                 {
                     FC_ASSERT(offer.bidder, "No valid bidder");
                     FC_ASSERT((*offer.bid_price).amount >= 0, "Invalid bid price");
@@ -244,8 +244,8 @@ namespace graphene
 
                 switch (op.result)
                 {
-                case result_type::Expired:
-                case result_type::ExpiredNoBid:
+                case result_types::Expired:
+                case result_types::ExpiredNoBid:
                     FC_ASSERT(offer.offer_expiration_date <= d.head_block_time(), "Offer finalized beyong expiration time");
                     break;
                 default:
@@ -287,7 +287,7 @@ namespace graphene
                     return fee_map;
                 };
 
-                if (op.result != result_type::ExpiredNoBid)
+                if (op.result != result_types::ExpiredNoBid)
                 {
                     int64_t tot_fees = 0;
                     auto &&fee_map = calc_fee(tot_fees);

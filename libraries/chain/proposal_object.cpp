@@ -1,27 +1,3 @@
-/*
- * Copyright (c) 2015-2018 Cryptonomex, Inc., and contributors.
- * Copyright (c) 2020-2023 Revolution Populi Limited, and contributors.
- *
- * The MIT License
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/hardfork.hpp>
 #include <graphene/chain/transaction_evaluation_state.hpp>
@@ -42,8 +18,8 @@ bool proposal_object::is_authorized_to_execute( database& db ) const
                         available_key_approvals,
                         [&db]( account_id_type id ){ return &id( db ).active; },
                         [&db]( account_id_type id ){ return &id( db ).owner;  },
-                         [&]( account_id_type id, const operation& op ){
-                           return db.get_account_custom_authorities(id, op); },
+                        //[&]( account_id_type id, const operation& op ){
+                        //   return db.get_account_custom_authorities(id, op); },
                         [&db]( account_id_type id, const operation& op, rejected_predicate_map* rejects ){
                            return db.get_viable_custom_authorities(id, op, rejects); },
                         allow_non_immediate_owner,
@@ -142,10 +118,10 @@ void required_approval_index::object_modified( const object& after )
 }
 
 } } // graphene::chain
-
+/*
 FC_REFLECT_DERIVED_NO_TYPENAME( graphene::chain::proposal_object, (graphene::chain::object),
                     (expiration_time)(review_period_time)(proposed_transaction)(required_active_approvals)
                     (available_active_approvals)(required_owner_approvals)(available_owner_approvals)
                     (available_key_approvals)(proposer)(fail_reason) )
-
+*/
 GRAPHENE_IMPLEMENT_EXTERNAL_SERIALIZATION( graphene::chain::proposal_object )

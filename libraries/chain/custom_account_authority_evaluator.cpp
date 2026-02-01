@@ -1,5 +1,5 @@
 #include <graphene/chain/custom_account_authority_evaluator.hpp>
-
+#include <graphene/protocol/chain_parameters.hpp>
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/custom_account_authority_object.hpp>
 #include <graphene/chain/custom_permission_object.hpp>
@@ -18,6 +18,7 @@ void_result create_custom_account_authority_evaluator::do_evaluate(const custom_
       const database &d = db();
       auto now = d.head_block_time();
       FC_ASSERT(now >= HARDFORK_NFT_TIME, "Not allowed until NFT HF");
+      //op.account(d);
       op.owner_account(d);
       const custom_permission_object &pobj = op.permission_id(d);
       FC_ASSERT(pobj.account == op.owner_account, "Only owner account can update account authority object");

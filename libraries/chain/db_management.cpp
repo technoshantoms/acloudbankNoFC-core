@@ -43,12 +43,9 @@
 
 namespace graphene { namespace chain {
 
-database::database(bool allow_testing_edits) :
-   _random_number_generator(fc::ripemd160().data()),
-   _allow_safety_check_bypass(allow_testing_edits)
+database::database() :
+   _random_number_generator(fc::ripemd160().data())
 {
-   if (allow_testing_edits)
-   elog("UNIT TESTING MODE ENABLED -- NOT FOR PRODUCTION USE");
    initialize_indexes();
    initialize_evaluators();
 }
@@ -57,50 +54,6 @@ database::~database()
 {
    clear_pending();
 }
-
-// Right now, we leave undo_db enabled when replaying when the bookie plugin is
-// enabled.  It depends on new/changed/removed object notifications, and those are
-// only fired when the undo_db is enabled.
-// So we use this helper object to disable undo_db only if it is not forbidden
-// with _slow_replays flag.
-class auto_undo_enabler
-{
-    const bool _slow_replays;
-    undo_database& _undo_db;
-    bool _disabled;
-public:
-    auto_undo_enabler(bool slow_replays, undo_database& undo_db) :
-        _slow_replays(slow_replays),
-        _undo_db(undo_db),
-        _disabled(false)
-    {
-    }
-
-    ~auto_undo_enabler()
-    {
-        try{
-            enable();
-        } FC_CAPTURE_AND_LOG(("undo_db enabling crash"))
-    }
-
-    void enable()
-    {
-        if(!_disabled)
-            return;
-        _undo_db.enable();
-        _disabled = false;
-    }
-
-    void disable()
-    {
-        if(_disabled)
-            return;
-        if(_slow_replays)
-            return;
-        _undo_db.disable();
-        _disabled = true;
-    }
-};
 
 void database::reindex( fc::path data_dir )
 { try {
@@ -115,68 +68,99 @@ void database::reindex( fc::path data_dir )
    ilog( "reindexing blockchain" );
    auto start = fc::time_point::now();
    const auto last_block_num = last_block->block_num();
-   uint32_t undo_point = last_block_num < 50 ? 0 : last_block_num - 50;
+   uint32_t undo_point = last_block_num < GRAPHENE_MAX_UNDO_HISTORY ? 0 : last_block_num - GRAPHENE_MAX_UNDO_HISTORY;
 
    ilog( "Replaying blocks, starting at ${next}...", ("next",head_block_num() + 1) );
-   auto_undo_enabler undo(_slow_replays, _undo_db);
    if( head_block_num() >= undo_point )
    {
       if( head_block_num() > 0 )
          _fork_db.start_block( *fetch_block_by_number( head_block_num() ) );
    }
    else
+      _undo_db.disable();
+
+   uint32_t skip = node_properties().skip_flags;
+
+   size_t total_block_size = _block_id_to_block.total_block_size();
+   const auto& gpo = get_global_properties();
+   std::queue< std::tuple< size_t, signed_block, fc::future< void > > > blocks;
+   uint32_t next_block_num = head_block_num() + 1;
+   uint32_t i = next_block_num;
+   while( next_block_num <= last_block_num || !blocks.empty() )
    {
-       undo.disable();
-   }
-   for( uint32_t i = head_block_num() + 1; i <= last_block_num; ++i )
-   {
-      if( i % 1000000 == 0 )
+      if( next_block_num <= last_block_num && blocks.size() < 20 )
       {
-         ilog( "Writing database to disk at block ${i}", ("i",i) );
-         flush();
-         ilog( "Done" );
-      }
-      fc::optional< signed_block > block = _block_id_to_block.fetch_by_number(i);
-      if( !block.valid() )
-      {
-         wlog( "Reindexing terminated due to gap:  Block ${i} does not exist!", ("i", i) );
-         uint32_t dropped_count = 0;
-         while( true )
+         const size_t processed_block_size = _block_id_to_block.blocks_current_position();
+         fc::optional< signed_block > block = _block_id_to_block.fetch_by_number( next_block_num++ );
+         if( block.valid() )
          {
-            fc::optional< block_id_type > last_id = _block_id_to_block.last_id();
-            // this can trigger if we attempt to e.g. read a file that has block #2 but no block #1
-            if( !last_id.valid() )
-               break;
-            // we've caught up to the gap
-            if( block_header::num_from_id( *last_id ) <= i )
-               break;
-            _block_id_to_block.remove( *last_id );
-            dropped_count++;
+            if( block->timestamp >= last_block->timestamp - gpo.parameters.maximum_time_until_expiration )
+               skip &= ~skip_transaction_dupe_check;
+            blocks.emplace( processed_block_size, std::move(*block), fc::future<void>() );
+            std::get<2>(blocks.back()) = precompute_parallel( std::get<1>(blocks.back()), skip );
          }
-         wlog( "Dropped ${n} blocks from after the gap", ("n", dropped_count) );
-         break;
-      }
-      if( i < undo_point && !_slow_replays)
-      {
-         apply_block(*block, skip_witness_signature |
-                             skip_transaction_signatures |
-                             skip_transaction_dupe_check |
-                             skip_tapos_check |
-                             skip_witness_schedule_check |
-                             skip_authority_check);
+         else
+         {
+            wlog( "Reindexing terminated due to gap:  Block ${i} does not exist!", ("i", i) );
+            uint32_t dropped_count = 0;
+            while( true )
+            {
+               fc::optional< block_id_type > last_id = _block_id_to_block.last_id();
+               // this can trigger if we attempt to e.g. read a file that has block #2 but no block #1
+               if( !last_id.valid() )
+                  break;
+               // we've caught up to the gap
+               if( block_header::num_from_id( *last_id ) <= i )
+                  break;
+               _block_id_to_block.remove( *last_id );
+               dropped_count++;
+            }
+            wlog( "Dropped ${n} blocks from after the gap", ("n", dropped_count) );
+            next_block_num = last_block_num + 1; // don't load more blocks
+         }
       }
       else
       {
-         undo.enable();
-         push_block(*block, skip_witness_signature |
-                            skip_transaction_signatures |
-                            skip_transaction_dupe_check |
-                            skip_tapos_check |
-                            skip_witness_schedule_check |
-                            skip_authority_check);
+         std::get<2>(blocks.front()).wait();
+         const signed_block& block = std::get<1>(blocks.front());
+
+         if( i % 10000 == 0 )
+         {
+            std::stringstream bysize;
+            std::stringstream bynum;
+            size_t current_pos = std::get<0>(blocks.front());
+            if( current_pos > total_block_size )
+               total_block_size = current_pos;
+            bysize << std::fixed << std::setprecision(5) << double(current_pos) / total_block_size * 100;
+            bynum << std::fixed << std::setprecision(5) << double(i)*100/last_block_num;
+            ilog(
+               "   [by size: ${size}%   ${processed} of ${total}]   [by num: ${num}%   ${i} of ${last}]",
+               ("size", bysize.str())
+               ("processed", current_pos)
+               ("total", total_block_size)
+               ("num", bynum.str())
+               ("i", i)
+               ("last", last_block_num)
+            );
+         }
+         if( i == undo_point )
+         {
+            ilog( "Writing database to disk at block ${i}", ("i",i) );
+            flush();
+            ilog( "Done" );
+         }
+         if( i < undo_point )
+            apply_block( block, skip );
+         else
+         {
+            _undo_db.enable();
+            push_block( block, skip );
+         }
+         blocks.pop();
+         i++;
       }
    }
-   undo.enable();
+   _undo_db.enable();
    auto end = fc::time_point::now();
    ilog( "Done reindexing, elapsed time: ${t} sec", ("t",double((end-start).count())/1000000.0 ) );
 } FC_CAPTURE_AND_RETHROW( (data_dir) ) }
@@ -245,52 +229,6 @@ void database::open(
    }
    FC_CAPTURE_LOG_AND_RETHROW( (data_dir) )
 }
-
-void database::close(bool rewind)
-{
-   if (!_opened)
-      return;
-      
-   // TODO:  Save pending tx's on close()
-   clear_pending();
-
-   // pop all of the blocks that we can given our undo history, this should
-   // throw when there is no more undo history to pop
-   if( rewind )
-   {
-      try
-      {
-         uint32_t cutoff = get_dynamic_global_properties().last_irreversible_block_num;
-
-         ilog( "Rewinding from ${head} to ${cutoff}", ("head",head_block_num())("cutoff",cutoff) );
-         while( head_block_num() > cutoff )
-         {
-            block_id_type popped_block_id = head_block_id();
-            pop_block();
-            _fork_db.remove(popped_block_id); // doesn't throw on missing
-         }
-      }
-      catch ( const fc::exception& e )
-      {
-         wlog( "Database close unexpected exception: ${e}", ("e", e) );
-      }
-   }
-
-   // Since pop_block() will move tx's in the popped blocks into pending,
-   // we have to clear_pending() after we're done popping to get a clean
-   // DB state (issue #336).
-   clear_pending();
-
-   object_database::flush();
-   object_database::close();
-
-   if( _block_id_to_block.is_open() )
-      _block_id_to_block.close();
-
-   _fork_db.reset();
-
-   _opened = false;
-}
 void database::force_slow_replays()
 {
    ilog("enabling slow replays");
@@ -340,6 +278,52 @@ void database::check_lottery_end_by_participants( asset_id_type asset_id )
       FC_ASSERT( asset_to_check.lottery_options->ending_on_soldout );
       asset_to_check.end_lottery( *this );
    } catch( ... ) {}
+}
+
+void database::close(bool rewind)
+{
+   if (!_opened)
+      return;
+      
+   // TODO:  Save pending tx's on close()
+   clear_pending();
+
+   // pop all of the blocks that we can given our undo history, this should
+   // throw when there is no more undo history to pop
+   if( rewind )
+   {
+      try
+      {
+         uint32_t cutoff = get_dynamic_global_properties().last_irreversible_block_num;
+
+         ilog( "Rewinding from ${head} to ${cutoff}", ("head",head_block_num())("cutoff",cutoff) );
+         while( head_block_num() > cutoff )
+         {
+            block_id_type popped_block_id = head_block_id();
+            pop_block();
+            _fork_db.remove(popped_block_id); // doesn't throw on missing
+         }
+      }
+      catch ( const fc::exception& e )
+      {
+         wlog( "Database close unexpected exception: ${e}", ("e", e) );
+      }
+   }
+
+   // Since pop_block() will move tx's in the popped blocks into pending,
+   // we have to clear_pending() after we're done popping to get a clean
+   // DB state (issue #336).
+   clear_pending();
+
+   object_database::flush();
+   object_database::close();
+
+   if( _block_id_to_block.is_open() )
+      _block_id_to_block.close();
+
+   _fork_db.reset();
+
+   _opened = false;
 }
 
 } }

@@ -35,6 +35,15 @@
 #include <graphene/protocol/custom_account_authority.hpp>
 #include <graphene/protocol/offer.hpp>
 #include <graphene/protocol/nft_ops.hpp>
+
+/*
+#include <graphene/protocol/sidechain_address.hpp>
+#include <graphene/protocol/son_wallet.hpp>
+#include <graphene/protocol/son_wallet_deposit.hpp>
+#include <graphene/protocol/son_wallet_withdraw.hpp>
+#include <graphene/protocol/sidechain_transaction.hpp>
+*/
+
 #include <graphene/protocol/random_number.hpp>
 
 
@@ -132,21 +141,30 @@ namespace graphene { namespace protocol {
             /* 83 */ custom_account_authority_create_operation,
             /* 84 */ custom_account_authority_update_operation,
             /* 85 */ custom_account_authority_delete_operation,
-             /* 86 */ offer_operation,
-             /* 87 */ bid_operation,
-             /* 88 */ cancel_offer_operation,
-             /* 89 */ finalize_offer_operation,
-             /* 90 */ nft_metadata_create_operation,
-             /* 91 */ nft_metadata_update_operation,
-             /* 92 */ nft_mint_operation,
-             /* 93 */ nft_safe_transfer_from_operation,
-             /* 94 */ nft_approve_operation,
-             /* 95 */ nft_set_approval_for_all_operation,
-             /* 96 */ nft_lottery_token_purchase_operation,
-             /* 97 */ nft_lottery_reward_operation,
-             /* 98 */ nft_lottery_end_operation,
-             ///* 99 */affiliate_referral_payout_operation, // VIRTUAL
-             /* 100 */ random_number_store_operation
+            /* 86 */ offer_operation,
+            /* 87 */ bid_operation,
+            /* 88 */ cancel_offer_operation,
+            /* 89 */ finalize_offer_operation,
+            /* 90 */ nft_metadata_create_operation,
+            /* 91 */ nft_metadata_update_operation,
+            /* 92 */ nft_mint_operation,
+            /* 93 */ nft_safe_transfer_from_operation,
+            /* 94 */ nft_approve_operation,
+            /* 95 */ nft_set_approval_for_all_operation,
+            /* 96 */ nft_lottery_token_purchase_operation,
+            /* 97 */ nft_lottery_reward_operation,
+            /* 98 */ nft_lottery_end_operation,
+            /* 99 */random_number_store_operation
+           // /* 100 */ affiliate_referral_payout_operation // VIRTUAL
+            /*
+            sidechain_address_add_operation,
+            sidechain_address_update_operation,
+            sidechain_address_delete_operation,
+            sidechain_transaction_create_operation,
+            sidechain_transaction_sign_operation,
+            sidechain_transaction_send_operation,
+            sidechain_transaction_settle_operation,
+            */
          > operation;
 
    /// @} // operations group
