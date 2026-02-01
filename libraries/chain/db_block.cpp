@@ -1,3 +1,5 @@
+
+
 #include <graphene/chain/database.hpp>
 #include <graphene/chain/db_with.hpp>
 #include <graphene/chain/hardfork.hpp>
@@ -14,34 +16,12 @@
 #include <graphene/chain/witness_schedule_object.hpp>
 
 #include <graphene/protocol/fee_schedule.hpp>
-#include <graphene/protocol/operations.hpp> //satia
 
 #include <fc/io/raw.hpp>
-#include <fc/crypto/digest.hpp> //satia
 #include <fc/thread/parallel.hpp>
 
-namespace {
-
-   struct proposed_operations_digest_accumulator
-   {
-      typedef void result_type;
-
-      void operator()(const graphene::chain::proposal_create_operation& proposal)
-      {
-         for (auto& operation: proposal.proposed_ops)
-         {
-            proposed_operations_digests.push_back(fc::digest(operation.op));
-         }
-      }
-
-      //empty template method is needed for all other operation types
-      //we can ignore them, we are interested in only proposal_create_operation
-template<class T>
-   void operator()(const T&) {}
-      std::vector<fc::sha256> proposed_operations_digests;
-   };
-}
 namespace graphene { namespace chain {
+
 bool database::is_known_block( const block_id_type& id )const
 {
    return _fork_db.is_known_block(id) || _block_id_to_block.contains(id);
@@ -476,21 +456,6 @@ signed_block database::_generate_block(
    pending_block.transaction_merkle_root = pending_block.calculate_merkle_root();
    pending_block.witness = witness_id;
 
-   /* // Genesis witnesses start with a default initial secret
-   if( witness_obj.next_secret_hash == secret_hash_type::hash( secret_hash_type() ) ) {
-         pending_block.previous_secret = secret_hash_type();
-   } else {
-         secret_hash_type::encoder last_enc;
-         fc::raw::pack( last_enc, block_signing_private_key );
-         fc::raw::pack( last_enc, witness_obj.previous_secret );
-         pending_block.previous_secret = last_enc.result();
-   }
-
-   secret_hash_type::encoder next_enc;
-   fc::raw::pack( next_enc, block_signing_private_key );
-   fc::raw::pack( next_enc, pending_block.previous_secret );
-   pending_block.next_secret_hash = secret_hash_type::hash(next_enc.result());
-*/
    if( !(skip & skip_witness_signature) )
       pending_block.sign( block_signing_private_key );
 
@@ -521,7 +486,6 @@ void database::pop_block()
 
 void database::clear_pending()
 { try {
-  // scoped_database_unlocker unlocker(*_check_policy_1, *_check_policy_2);
    assert( (_pending_tx.size() == 0) || _pending_tx_session.valid() );
    _pending_tx.clear();
    _pending_tx_session.reset();
@@ -557,6 +521,7 @@ vector<optional< operation_history_object > >& database::get_applied_operations(
 {
    return _applied_ops;
 }
+
 //////////////////// private methods ////////////////////
 
 void database::apply_block( const signed_block& next_block, uint32_t skip )
@@ -664,6 +629,7 @@ void database::_apply_block( const signed_block& next_block )
 } FC_CAPTURE_AND_RETHROW( (next_block.block_num()) )  }
 
 
+
 processed_transaction database::apply_transaction(const signed_transaction& trx, uint32_t skip)
 {
    processed_transaction result;
@@ -673,19 +639,6 @@ processed_transaction database::apply_transaction(const signed_transaction& trx,
    });
    return result;
 }
-
-class undo_size_restorer {
-   public:
-      undo_size_restorer( undo_database& db ) : _db( db ), old_max( db.max_size() ) {
-         _db.set_max_size( old_max * 2 );
-      }
-      ~undo_size_restorer() {
-         _db.set_max_size( old_max );
-      }
-   private:
-      undo_database& _db;
-      size_t         old_max;
-};
 
 processed_transaction database::_apply_transaction(const signed_transaction& trx)
 { try {
@@ -779,31 +732,6 @@ operation_result database::apply_operation(transaction_evaluation_state& eval_st
    set_applied_operation_result( op_id, result );
    return result;
 } FC_CAPTURE_AND_RETHROW( (op) ) }
-
-
-/*operation_result database::apply_operation(transaction_evaluation_state& eval_state, const operation& op)
-{ try {
-   scoped_database_unlocker unlocker(*_check_policy_1, *_check_policy_2);
-   int i_which = op.which();
-   uint64_t u_which = uint64_t( i_which );
-   FC_ASSERT( i_which >= 0, "Negative operation tag in operation ${op}", ("op",op) );
-   FC_ASSERT( u_which < _operation_evaluators.size(), "No registered evaluator for operation ${op}", ("op",op) );
-   unique_ptr<op_evaluator>& eval = _operation_evaluators[ u_which ];
-   FC_ASSERT( eval, "No registered evaluator for operation ${op}", ("op",op) );
-   auto op_id = push_applied_operation( op );
-   auto result = eval->evaluate( eval_state, op, true );
-   set_applied_operation_result( op_id, result );
-   // Run third party evaluator chain. Check that they don't yield, and lock consensus databases while they run.
-   if (_third_party_operation_evaluators.size() > u_which && _third_party_operation_evaluators[u_which]) {
-      ASSERT_TASK_NOT_PREEMPTED();
-      _check_policy_1->lock();
-      _check_policy_2->lock();
-      _third_party_operation_evaluators[u_which]->evaluate( eval_state, op, true );
-      _check_policy_1->unlock();
-      _check_policy_2->unlock();
-   }
-   return result;
-} FC_CAPTURE_AND_RETHROW( (op) ) }*/
 
 const witness_object& database::validate_block_header( uint32_t skip, const signed_block& next_block )const
 {
